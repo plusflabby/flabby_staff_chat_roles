@@ -1,4 +1,4 @@
-// Kick Server Command
+// Command
 class flabby_staff_chat_roles_command : ScrServerCommand
 {
 	// Specify keyword of command
@@ -52,6 +52,18 @@ class flabby_staff_chat_roles_command : ScrServerCommand
 				return ScrServerCmdResult("Success, cleared all roles.", EServerCmdResultType.OK);
 			}
 			
+			// Edit functions 
+			if (argv[1] == "edit" && argv[2] == "name")
+			{
+				flabby_staff_chat_roles_configuration.editRoleName(argv[3], argv[4]);
+				return ScrServerCmdResult("Success, saved name.", EServerCmdResultType.OK);
+			}
+//			if (argv[1] == "edit" && argv[2] == "color")
+//			{
+//				
+//				return ScrServerCmdResult("Success, saved color.", EServerCmdResultType.OK);
+//			}
+			
 			// Player functions
 			if (argv[1] == "add" && argv[2] == "player")
 			{
@@ -90,6 +102,8 @@ class flabby_staff_chat_roles_command : ScrServerCommand
 				helpString += "#cr add role [Name]\n";
 				helpString += "#cr remove role [Name]\n";
 				helpString += "#cr clear roles\n";
+				helpString += "#cr edit name [Name] [NewName]\n";
+				//helpString += "#cr edit color [Name]\n";
 				helpString += "#cr help\n";
 				return ScrServerCmdResult(helpString, EServerCmdResultType.OK);
 			}
