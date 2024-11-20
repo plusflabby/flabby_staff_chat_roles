@@ -309,4 +309,72 @@ class flabby_staff_chat_roles_configuration
 			return string.Empty;
 		}
 	}
+	
+	static void editRoleName(string roleName, string roleNameNew)
+	{
+		// Upper case role name
+		roleName.ToUpper();
+		
+		// Upper case new role name
+		roleNameNew.ToUpper();
+	
+		bool isFile = FileIO.FileExists(persistedFileLocation);
+		if (isFile)
+		{
+			// Open file
+			SCR_JsonLoadContext jsonLoader = new SCR_JsonLoadContext();
+			jsonLoader.LoadFromFile(persistedFileLocation);
+			
+			// Get and set roles
+			array<string> roles = new array<string>();
+			jsonLoader.ReadValue("roles", roles);
+			
+			// Update role in role array
+			if (roles.Contains(roleName))
+			{
+				int roleIdentifier = roles.Find(roleName);
+				roles.Remove(roleIdentifier);
+				roles.Insert(roleNameNew);
+			}
+			
+			// Set players
+			array<string> players = new array<string>();
+			jsonLoader.ReadValue("players", players);
+			
+			// Get and set players_with_role to read from
+			string players_with_role_string = string.Empty;
+			jsonLoader.ReadValue("players_with_role", players_with_role_string);
+			SCR_JsonLoadContext players_with_role = new SCR_JsonLoadContext();
+			players_with_role.ImportFromString(players_with_role_string);
+			
+			// Make players_with_role to write to
+			SCR_JsonSaveContext players_with_role_object = new SCR_JsonSaveContext();
+			
+			foreach(string player : players)
+			{
+				string prefix = string.Empty;
+				players_with_role.ReadValue(player, prefix);
+				
+				if (prefix == roleName)
+				{
+					players_with_role_object.WriteValue(player, roleNameNew);
+				}
+				else
+				{
+					players_with_role_object.WriteValue(player, prefix);
+				}
+			}
+			
+			// Save file 
+			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
+			jsonSaver.WriteValue("players", players);
+			jsonSaver.WriteValue("roles", roles);
+			jsonSaver.WriteValue("players_with_role", players_with_role_object.ExportToString());
+			jsonSaver.SaveToFile(persistedFileLocation);
+			
+		}
+		// No file so nothing to edit :D 
+	}
+	
+	//static void editRoleColor(string playerBohemiaIdentifier);
 }
