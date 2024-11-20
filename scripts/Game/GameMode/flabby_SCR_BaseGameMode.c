@@ -36,10 +36,8 @@ modded class SCR_BaseGameMode
 		SCR_ChatMessageLineComponent.flabby_chat_prefix = prefix;
 	}
 	
-	override void OnPlayerConnected(int playerId)
+	void flabby_OnPlayerConnected(int playerId)
 	{
-		super.OnPlayerConnected(playerId);
-		
 		if (RplSession.Mode() != RplMode.Dedicated)
 		{
 			Rpc(flabby_ServerChatPrefix, "EDITOR");
@@ -48,6 +46,16 @@ modded class SCR_BaseGameMode
 		{
 			Rpc(flabby_ServerChatPrefix, GetGame().GetBackendApi().GetPlayerIdentityId(playerId));
 		}
+	}
+	
+	override void EOnInit(IEntity owner)
+	{
+		SCR_BaseGameMode gameMode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+		if (!gameMode)
+			return;
 		
+		gameMode.m_OnPlayerConnected.Insert(flabby_OnPlayerConnected);
+		
+		super.EOnInit(owner);
 	}
 }
