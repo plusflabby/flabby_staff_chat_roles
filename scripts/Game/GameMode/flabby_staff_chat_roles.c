@@ -1,7 +1,5 @@
 modded class SCR_ChatMessageLineComponent
 {
-	//! Does player have prefix?
-	static bool flabby_chat;
 	//! If player has a prefix here it is
 	static string flabby_chat_prefix;
 	
@@ -15,12 +13,13 @@ modded class SCR_ChatMessageLineComponent
 		{
 			return;
 		}
+		
 		// Dpes player have prefix 
-		if (!flabby_chat)
+		if (flabby_chat_prefix.IsEmpty())
 		{
 			return;
 		}
-		// Set prefix in message
-		messageGeneral.m_sSenderName = string.Format("%2 | %1", messageGeneral.m_sSenderName, flabby_chat_prefix);
+		
+		m_Widgets.m_MessageText.SetText(string.Format("%1 | %2", flabby_chat_prefix, m_Widgets.m_MessageText.GetText()));
 	}
 }

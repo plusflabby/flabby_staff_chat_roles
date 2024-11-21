@@ -39,6 +39,7 @@ class flabby_staff_chat_roles_configuration
 	}
 	
 	//! Remove role
+	//! Also remove prefix from players with role
 	static void removeRoleCategory(string roleName)
 	{
 		// Upper case role name
@@ -59,6 +60,11 @@ class flabby_staff_chat_roles_configuration
 			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
 			jsonSaver.WriteValue("roles", roles);
 			jsonSaver.SaveToFile(persistedFileLocation);
+		
+			// Update on clients
+			array<string> players = new array<string>();
+			jsonLoader.ReadValue("players", players);
+			requestPrefixUpdates(players);
 		}
 		else
 		{
@@ -67,6 +73,7 @@ class flabby_staff_chat_roles_configuration
 	}
 	
 	//! Remove all roles
+	//! Also remove prefix from players with role
 	static void clearRoles()
 	{
 		// Check if file is made
@@ -88,6 +95,9 @@ class flabby_staff_chat_roles_configuration
 			jsonSaver.WriteValue("players_with_role", players_with_role_object.ExportToString());
 			jsonSaver.WriteValue("roles", roles);
 			jsonSaver.SaveToFile(persistedFileLocation);
+		
+			// Update on clients
+			requestPrefixUpdates(players);
 		}
 		else
 		{
@@ -96,6 +106,7 @@ class flabby_staff_chat_roles_configuration
 	}
 	
 	//! Add a role to player
+	//! Also adds prefix to player if online
 	static string addRoleToPlayer(string playerIdentifier, string roleName)
 	{
 		// Upper case role name
@@ -158,6 +169,11 @@ class flabby_staff_chat_roles_configuration
 			jsonSaver.WriteValue("players", players);
 			jsonSaver.WriteValue("players_with_role", jsonPlayersSaver.ExportToString());
 			jsonSaver.SaveToFile(persistedFileLocation);
+		
+			// Update on client
+			array<string> playerToUpdate = new array<string>();
+			playerToUpdate.Insert(playerIdentifier);
+			requestPrefixUpdates(playerToUpdate);
 			
 			return string.Format("Success, added %1 role to player %2.", playerIdentifier, roleName);
 		}
@@ -168,7 +184,8 @@ class flabby_staff_chat_roles_configuration
 		}
 	}
 	
-	//! Add a role to player
+	//! Remove a role from player
+	//! Also removes the prefix on player if online
 	static string removeRoleFromPlayer(string playerIdentifier)
 	{
 		// Made directory incase not already there
@@ -229,6 +246,11 @@ class flabby_staff_chat_roles_configuration
 			jsonSaver.WriteValue("players", players);
 			jsonSaver.WriteValue("players_with_role", jsonPlayersSaver.ExportToString());
 			jsonSaver.SaveToFile(persistedFileLocation);
+		
+			// Update on client
+			array<string> playerToUpdate = new array<string>();
+			playerToUpdate.Insert(playerIdentifier);
+			requestPrefixUpdates(playerToUpdate);
 			
 			return string.Format("Success, removed %1 from configuration.", playerIdentifier);
 		}
@@ -240,6 +262,7 @@ class flabby_staff_chat_roles_configuration
 	}
 	
 	//! Add a role to player
+	//! Also remvoes all prefixs from players with roles that are online
 	static void clearPlayers()
 	{
 		// Check if file is made
@@ -261,6 +284,9 @@ class flabby_staff_chat_roles_configuration
 			jsonSaver.WriteValue("players", players);
 			jsonSaver.WriteValue("players_with_role", players_with_role_object.ExportToString());
 			jsonSaver.SaveToFile(persistedFileLocation);
+		
+			// Update on clients
+			requestPrefixUpdates(players);
 		}
 		else
 		{
@@ -268,9 +294,10 @@ class flabby_staff_chat_roles_configuration
 		}
 	}
 	
+	// Get the player's prefix from configuration
 	static string getPlayerPrefix(string playerBohemiaIdentifier)
 	{
-	// Check if file is made
+		// Check if file is made
 		bool isFile = FileIO.FileExists(persistedFileLocation);
 		if (isFile)
 		{
@@ -310,6 +337,8 @@ class flabby_staff_chat_roles_configuration
 		}
 	}
 	
+	//! Edit a role's name to a new name
+	//! Also updates prefix to players if online
 	static void editRoleName(string roleName, string roleNameNew)
 	{
 		// Upper case role name
@@ -371,10 +400,77 @@ class flabby_staff_chat_roles_configuration
 			jsonSaver.WriteValue("roles", roles);
 			jsonSaver.WriteValue("players_with_role", players_with_role_object.ExportToString());
 			jsonSaver.SaveToFile(persistedFileLocation);
+		
+			// Update on clients
+			requestPrefixUpdates(players);
 			
 		}
 		// No file so nothing to edit :D 
 	}
 	
-	//static void editRoleColor(string playerBohemiaIdentifier);
+	//! Edit a role's color
+	//! Also updates prefix to players if online
+	static void editRoleColor(string playerBohemiaIdentifier);
+	
+	//! Request players to update prefix if online 
+	static void requestPrefixUpdates(notnull array<string> playerBohemiaIdentifiersToUpdate)
+	{
+		array<string> onlinePlayersToUpdateBohemiaIdentifiers = new array<string>();
+		
+		// Make sure there is players to check
+		if (playerBohemiaIdentifiersToUpdate.Count() == 0)
+		{
+			return;
+		}
+		
+		// Make sure functions are ready to be used
+		if (!GetGame())
+		{
+			return;
+		}
+		if (!GetGame().GetPlayerManager())
+		{
+			return;
+		}
+		if (!GetGame().GetBackendApi())
+		{
+			return;
+		}
+		
+		// Get player server identifiers
+		array<int> playerServerIdentifiers = new array<int>();
+		GetGame().GetPlayerManager().GetPlayers(playerServerIdentifiers);
+		if (playerServerIdentifiers.Count() == 0)
+		{
+			return;
+		}
+		
+		//! Gets identifiers added for compare
+		foreach(int playerIdentifier : playerServerIdentifiers)
+		{
+			// Get player's Bohemia Identifier
+			string playerBohemiaIdentifier = string.Empty;
+			if (RplSession.Mode() != RplMode.Dedicated)
+			{
+				playerBohemiaIdentifier = "EDITOR";
+			}
+			else
+			{
+				playerBohemiaIdentifier = GetGame().GetBackendApi().GetPlayerIdentityId(playerIdentifier);
+			}
+			
+			// See if player needs to be updated and is online
+			if (playerBohemiaIdentifiersToUpdate.Contains(playerBohemiaIdentifier))
+			{
+				onlinePlayersToUpdateBohemiaIdentifiers.Insert(playerBohemiaIdentifier);
+			}
+		}
+		
+		SCR_BaseGameMode gameMode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+		if (!gameMode)
+		{
+			return;
+		}
+		gameMode.flabby_ServerChatPrefixUpdate(onlinePlayersToUpdateBohemiaIdentifiers);
+	}
 }

@@ -17,22 +17,21 @@ modded class SCR_BaseGameMode
 		if (prefix.IsEmpty())
 		{
 			// Return no prfix as one was not found
-			Rpc(flabby_OwnerChatPrefix, false, "");
+			Rpc(flabby_OwnerChatPrefix, "");
 			return;
 		}
 		else
 		{
 			// Return the prefix
-			Rpc(flabby_OwnerChatPrefix, true, string.Format("[%1]", prefix));
+			Rpc(flabby_OwnerChatPrefix, string.Format("[%1]", prefix));
 			return;
 		}
 	}
 	
-	//! 
+	//! Update client variables
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void flabby_OwnerChatPrefix(bool hasPrefix, string prefix)
+	protected void flabby_OwnerChatPrefix(string prefix)
 	{
-		SCR_ChatMessageLineComponent.flabby_chat = hasPrefix;
 		SCR_ChatMessageLineComponent.flabby_chat_prefix = prefix;
 	}
 	
@@ -44,6 +43,15 @@ modded class SCR_BaseGameMode
 		}
 		else
 		{
+			if (!GetGame())
+			{
+				return;
+			}
+			if (!GetGame().GetBackendApi())
+			{
+				return;
+			}
+				
 			Rpc(flabby_ServerChatPrefix, GetGame().GetBackendApi().GetPlayerIdentityId(playerId));
 		}
 	}
@@ -57,5 +65,41 @@ modded class SCR_BaseGameMode
 		gameMode.m_OnPlayerConnected.Insert(flabby_OnPlayerConnected);
 		
 		super.EOnInit(owner);
+	}
+	
+	//! Send data to all clients
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	void flabby_ServerChatPrefixUpdate(notnull array<string> onlinePlayersToUpdateBohemiaIdentifiers)
+	{
+		if (!GetGame())
+		{
+			return;
+		}
+		if (!GetGame().GetBackendApi())
+		{
+			return;
+		}
+		if (!GetGame().GetPlayerController())
+		{
+			return;
+		}
+		
+		int clientServerIdentifier = GetGame().GetPlayerController().GetPlayerId();
+		string clientBohemiaIdentifier = string.Empty;
+		
+		if (RplSession.Mode() != RplMode.Dedicated)
+		{
+			clientBohemiaIdentifier = "EDITOR";
+		}
+		else
+		{
+			clientBohemiaIdentifier = GetGame().GetBackendApi().GetPlayerIdentityId(clientServerIdentifier);
+		}
+		
+		
+		if (onlinePlayersToUpdateBohemiaIdentifiers.Contains(clientBohemiaIdentifier))
+		{
+			flabby_OnPlayerConnected(clientServerIdentifier);
+		}
 	}
 }

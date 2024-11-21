@@ -1,5 +1,5 @@
-// Command
-class flabby_staff_chat_roles_command : ScrServerCommand
+// Main Command(s)
+class flabby_staff_chat_roles_commands : ScrServerCommand
 {
 	// Specify keyword of command
 	//-----------------------------------------------------------------------------
@@ -19,7 +19,7 @@ class flabby_staff_chat_roles_command : ScrServerCommand
 	//-----------------------------------------------------------------------------
 	override int RequiredRCONPermission()
 	{
-		return ERCONPermissions.PERMISSIONS_ADMIN;
+		return ERCONPermissions.PERMISSIONS_NONE;
 	}
 	
 	// Set requirement to be logged in administrator for chat command
@@ -58,11 +58,6 @@ class flabby_staff_chat_roles_command : ScrServerCommand
 				flabby_staff_chat_roles_configuration.editRoleName(argv[3], argv[4]);
 				return ScrServerCmdResult("Success, saved name.", EServerCmdResultType.OK);
 			}
-//			if (argv[1] == "edit" && argv[2] == "color")
-//			{
-//				
-//				return ScrServerCmdResult("Success, saved color.", EServerCmdResultType.OK);
-//			}
 			
 			// Player functions
 			if (argv[1] == "add" && argv[2] == "player")
@@ -91,21 +86,6 @@ class flabby_staff_chat_roles_command : ScrServerCommand
 			{
 				flabby_staff_chat_roles_configuration.clearPlayers();
 				return ScrServerCmdResult("Success, cleared all players.", EServerCmdResultType.OK);
-			}
-			// helps
-			if (argv[1] == "help")
-			{
-				string helpString = "Below is a list of all commands,\nYou get the Bohemia-Identifier from the main menu.\n";
-				helpString += "#cr add player [BehomiaIdentifier] [role]\n";
-				helpString += "#cr remove player [BehomiaIdentifier]\n";
-				helpString += "#cr clear players\n";
-				helpString += "#cr add role [Name]\n";
-				helpString += "#cr remove role [Name]\n";
-				helpString += "#cr clear roles\n";
-				helpString += "#cr edit name [Name] [NewName]\n";
-				//helpString += "#cr edit color [Name]\n";
-				helpString += "#cr help\n";
-				return ScrServerCmdResult(helpString, EServerCmdResultType.OK);
 			}
 		}
 		
