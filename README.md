@@ -6,7 +6,7 @@
 
 Support: https://flabby.dev/discord
 
-Commands require you to log-in as admin.
+Commands require you to log-in as admin. (#login)
 
 Command for help: #chatroles help
 
@@ -18,3 +18,10 @@ Commands List:
 - #cr remove role [Role-Name]
 - #cr clear roles
 - #cr edit name [Role-Name] [New-Role-Name]
+- #cr edit color [Role-Name] [Blue/Green/Red/Orange/Yellow/Black/White]
+
+Examples: 
+- #cr add role MOD
+- #cr edit name MOD ADMIN
+- #cr edit color ADMIN red
+- #cr add player c68a383e-209a-4e78-b61e-ff36cf338235 ADMIN

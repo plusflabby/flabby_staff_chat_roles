@@ -23,14 +23,14 @@ class flabby_staff_chat_roles_configuration
 			// Add role to array 
 			roles.Insert(roleName);
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
+			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			jsonSaver.WriteValue("roles", roles);
 			jsonSaver.SaveToFile(persistedFileLocation);
 		}
 		else
 		{
 			// Save file with new role
-			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
+			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			array<string> roles = new array<string>();
 			roles.Insert(roleName);
 			jsonSaver.WriteValue("roles", roles);
@@ -57,7 +57,7 @@ class flabby_staff_chat_roles_configuration
 			// Add role to array 
 			roles.RemoveItem(roleName);
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
+			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			jsonSaver.WriteValue("roles", roles);
 			jsonSaver.SaveToFile(persistedFileLocation);
 		
@@ -90,7 +90,7 @@ class flabby_staff_chat_roles_configuration
 			SCR_JsonSaveContext players_with_role_object = new SCR_JsonSaveContext();
 			
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
+			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			jsonSaver.WriteValue("players", players);
 			jsonSaver.WriteValue("players_with_role", players_with_role_object.ExportToString());
 			jsonSaver.WriteValue("roles", roles);
@@ -133,47 +133,39 @@ class flabby_staff_chat_roles_configuration
 			array<string> players = new array<string>();
 			jsonLoader.ReadValue("players", players);
 			
-			// Get players_with_role 
-			string players_with_role_string = string.Empty;
-			jsonLoader.ReadValue("players_with_role", players_with_role_string);
-			SCR_JsonLoadContext players_with_role = new SCR_JsonLoadContext();
-			players_with_role.ImportFromString(players_with_role_string);
-			
 			// Is player already added
-			string playerAddedAlready = string.Empty;
-			players_with_role.ReadValue(playerIdentifier, playerAddedAlready);
-			if (playerAddedAlready != string.Empty)
+			if (players.Contains(playerIdentifier))
 			{
 				return string.Format("%1 player is added to a role already.", playerIdentifier);
 			}
 			
-			// Save current players with their roles
-			SCR_JsonSaveContext jsonPlayersSaver = SCR_JsonSaveContext();
-			for (int i = 0; i > players.Count(); i++)
-			{
-				string playersBohemiaIdentifier = players.Get(i);
-				string playersRole = string.Empty;
-				players_with_role.ReadValue(playersBohemiaIdentifier, playersRole);
-				jsonPlayersSaver.WriteValue(playersBohemiaIdentifier, playersRole);
-			}
-			
 			// Add player and role to players_with_role
-			jsonPlayersSaver.WriteValue(playerIdentifier, roleName);
+			SCR_JsonSaveContext jsonPlayersSaver = new SCR_JsonSaveContext();
+			jsonPlayersSaver.WriteValue("role", roleName);
 			
 			// Add player to players array
 			players.Insert(playerIdentifier);
 			
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
+			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			jsonSaver.WriteValue("roles", roles);
 			jsonSaver.WriteValue("players", players);
-			jsonSaver.WriteValue("players_with_role", jsonPlayersSaver.ExportToString());
+			for (int i; i < players.Count(); i++)
+			{
+				string json = string.Empty;
+				jsonLoader.ReadValue(players.Get(i), json);
+				if (!json.IsEmpty())
+				{
+					jsonSaver.WriteValue(players.Get(i), json);
+				}
+			}
+			jsonSaver.WriteValue(playerIdentifier, jsonPlayersSaver.ExportToString());
 			jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on client
 			array<string> playerToUpdate = new array<string>();
 			playerToUpdate.Insert(playerIdentifier);
-			requestPrefixUpdates(playerToUpdate);
+			requestPrefixUpdates(playerToUpdate); 
 			
 			return string.Format("Success, added %1 role to player %2.", playerIdentifier, roleName);
 		}
@@ -213,38 +205,34 @@ class flabby_staff_chat_roles_configuration
 				return "No player exists with this identifier in configuration.";
 			}
 			
-			// Remove from players_with_role
-			string players_with_role_string = string.Empty;
-			jsonLoader.ReadValue("players_with_role", players_with_role_string);
-			SCR_JsonLoadContext players_with_role = new SCR_JsonLoadContext();
-			players_with_role.ImportFromString(players_with_role_string);
-			// Save current players with their roles but leave out the playerIdentifier to be removed
-			SCR_JsonSaveContext jsonPlayersSaver = SCR_JsonSaveContext();
-			for (int i = 0; i > players.Count(); i++)
-			{
-				string playersBohemiaIdentifier = players.Get(i);
-				string playersRole = string.Empty;
-				if (playersBohemiaIdentifier == playerIdentifier)
-					continue;
-				else
-				{
-					players_with_role.ReadValue(playersBohemiaIdentifier, playersRole);
-					jsonPlayersSaver.WriteValue(playersBohemiaIdentifier, playersRole);
-				}
-			}
-			
-			// Remove player form players array
-			players.Remove(players.Find(playerIdentifier));
-			
 			// Get and set roles
 			array<string> roles = new array<string>();
 			jsonLoader.ReadValue("roles", roles);
 			
-			// Save file 
-			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
+			// Saving
+			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			jsonSaver.WriteValue("roles", roles);
+			// Remove role from player 
+			for (int i; i < players.Count(); i++)
+			{
+				string playerObject = string.Empty;
+				if (jsonLoader.ReadValue(players.Get(i), playerObject))
+				{
+					// If is playerIdentifier do not write them back
+					if (players.Get(i) == playerIdentifier)
+					{
+						continue;
+					}
+					else 
+					{
+						jsonSaver.WriteValue(players.Get(i), playerObject);
+					}
+				}
+			}
+			// Remove player form players array
+			players.Remove(players.Find(playerIdentifier));
 			jsonSaver.WriteValue("players", players);
-			jsonSaver.WriteValue("players_with_role", jsonPlayersSaver.ExportToString());
+			// Save to file
 			jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on client
@@ -276,13 +264,14 @@ class flabby_staff_chat_roles_configuration
 			// Set players
 			array<string> players = new array<string>();
 			
-			// Make players_with_role json object
-			SCR_JsonSaveContext players_with_role_object = new SCR_JsonSaveContext();
+			// Get and set roles
+			array<string> roles = new array<string>();
+			jsonLoader.ReadValue("roles", roles);
 			
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
+			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
+			jsonSaver.WriteValue("roles", roles);
 			jsonSaver.WriteValue("players", players);
-			jsonSaver.WriteValue("players_with_role", players_with_role_object.ExportToString());
 			jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
@@ -312,15 +301,14 @@ class flabby_staff_chat_roles_configuration
 			if (players.Contains(playerBohemiaIdentifier))
 			{
 				// Set players_with_role_string
-				string players_with_role_string = string.Empty;
-				jsonLoader.ReadValue("players_with_role", players_with_role_string);
+				string playerString = string.Empty;
+				jsonLoader.ReadValue(playerBohemiaIdentifier, playerString);
 				
-				SCR_JsonLoadContext players_with_role = new SCR_JsonLoadContext();
-				players_with_role.ImportFromString(players_with_role_string);
+				SCR_JsonLoadContext playerJson = new SCR_JsonLoadContext();
+				playerJson.ImportFromString(playerString);
 				
 				string prefix = string.Empty;
-				players_with_role.ReadValue(playerBohemiaIdentifier, prefix);
-				
+				playerJson.ReadValue("role", prefix);
 				return prefix;
 			}
 			else 
@@ -328,13 +316,36 @@ class flabby_staff_chat_roles_configuration
 				// No player with the playerBohemiaIdentifier in array
 				return string.Empty;
 			}
-			
 		}
 		else
 		{
 			// No file so nothing to clear :D 
 			return string.Empty;
 		}
+	}
+	
+	//! Gets color for a role or returns default color 
+	static string getPrefixColor(string roleName)
+	{
+		string returnColor = "red";
+		
+		// Check if file is made
+		bool isFile = FileIO.FileExists(persistedFileLocation);
+		if (isFile)
+		{
+			string roleColors = string.Empty;
+			
+			SCR_JsonLoadContext jsonLoader = new SCR_JsonLoadContext();
+			SCR_JsonLoadContext roleColorsJson = new SCR_JsonLoadContext();
+			
+			jsonLoader.LoadFromFile(persistedFileLocation);
+			jsonLoader.ReadValue("roleColors", roleColors);
+			
+			roleColorsJson.ImportFromString(roleColors);
+			roleColorsJson.ReadValue(roleName, returnColor);
+		}
+		
+		return returnColor;
 	}
 	
 	//! Edit a role's name to a new name
@@ -366,39 +377,40 @@ class flabby_staff_chat_roles_configuration
 				roles.Insert(roleNameNew);
 			}
 			
+			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
+			
 			// Set players
 			array<string> players = new array<string>();
 			jsonLoader.ReadValue("players", players);
 			
-			// Get and set players_with_role to read from
-			string players_with_role_string = string.Empty;
-			jsonLoader.ReadValue("players_with_role", players_with_role_string);
-			SCR_JsonLoadContext players_with_role = new SCR_JsonLoadContext();
-			players_with_role.ImportFromString(players_with_role_string);
-			
-			// Make players_with_role to write to
-			SCR_JsonSaveContext players_with_role_object = new SCR_JsonSaveContext();
-			
-			foreach(string player : players)
+			foreach (string playerBiUid : players)
 			{
-				string prefix = string.Empty;
-				players_with_role.ReadValue(player, prefix);
+				string playerJsonString = string.Empty;
+				jsonLoader.ReadValue(playerBiUid, playerJsonString);
 				
-				if (prefix == roleName)
+				SCR_JsonLoadContext playerJsonRead = new SCR_JsonLoadContext();
+				playerJsonRead.ImportFromString(playerJsonString);
+				
+				SCR_JsonSaveContext playerJsonWrite = new SCR_JsonSaveContext();
+				string playerRole = string.Empty;
+				if (playerJsonRead.ReadValue("role", playerRole))
 				{
-					players_with_role_object.WriteValue(player, roleNameNew);
+					if (playerRole == roleName)
+					{
+						playerJsonWrite.WriteValue("role", roleNameNew);
+					}
+					else 
+					{
+						playerJsonWrite.WriteValue("role", playerRole);
+					}
 				}
-				else
-				{
-					players_with_role_object.WriteValue(player, prefix);
-				}
+				
+				jsonSaver.WriteValue(playerBiUid, playerJsonWrite.ExportToString());
 			}
 			
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = SCR_JsonSaveContext();
 			jsonSaver.WriteValue("players", players);
 			jsonSaver.WriteValue("roles", roles);
-			jsonSaver.WriteValue("players_with_role", players_with_role_object.ExportToString());
 			jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
@@ -409,68 +421,117 @@ class flabby_staff_chat_roles_configuration
 	}
 	
 	//! Edit a role's color
-	//! Also updates prefix to players if online
-	static void editRoleColor(string playerBohemiaIdentifier);
-	
-	//! Request players to update prefix if online 
-	static void requestPrefixUpdates(notnull array<string> playerBohemiaIdentifiersToUpdate)
+	static string editMessageColor(string roleName, string colorHexCode)
 	{
-		array<string> onlinePlayersToUpdateBohemiaIdentifiers = new array<string>();
+		// Upper case role name
+		roleName.ToUpper();
 		
-		// Make sure there is players to check
-		if (playerBohemiaIdentifiersToUpdate.Count() == 0)
+		bool isFile = FileIO.FileExists(persistedFileLocation);
+		if (isFile)
 		{
-			return;
-		}
-		
-		// Make sure functions are ready to be used
-		if (!GetGame())
-		{
-			return;
-		}
-		if (!GetGame().GetPlayerManager())
-		{
-			return;
-		}
-		if (!GetGame().GetBackendApi())
-		{
-			return;
-		}
-		
-		// Get player server identifiers
-		array<int> playerServerIdentifiers = new array<int>();
-		GetGame().GetPlayerManager().GetPlayers(playerServerIdentifiers);
-		if (playerServerIdentifiers.Count() == 0)
-		{
-			return;
-		}
-		
-		//! Gets identifiers added for compare
-		foreach(int playerIdentifier : playerServerIdentifiers)
-		{
-			// Get player's Bohemia Identifier
-			string playerBohemiaIdentifier = string.Empty;
-			if (RplSession.Mode() != RplMode.Dedicated)
+			// Open file
+			SCR_JsonLoadContext jsonLoader = new SCR_JsonLoadContext();
+			jsonLoader.LoadFromFile(persistedFileLocation);
+			
+			// Get and set roles
+			array<string> roles = new array<string>();
+			jsonLoader.ReadValue("roles", roles);
+			
+			// Does role exist 
+			
+			if (!roles.Contains(roleName))
 			{
-				playerBohemiaIdentifier = "EDITOR";
-			}
-			else
-			{
-				playerBohemiaIdentifier = GetGame().GetBackendApi().GetPlayerIdentityId(playerIdentifier);
+				return "Role does not exist.";
 			}
 			
-			// See if player needs to be updated and is online
-			if (playerBohemiaIdentifiersToUpdate.Contains(playerBohemiaIdentifier))
+			// Set players
+			array<string> playersToUpdate = new array<string>();
+			array<string> players = new array<string>();
+			jsonLoader.ReadValue("players", players);
+			
+			SCR_JsonSaveContext jsonToBeSaveToFile = new SCR_JsonSaveContext();
+			
+			// Save players with role
+			foreach (string playerBiUid : players)
 			{
-				onlinePlayersToUpdateBohemiaIdentifiers.Insert(playerBohemiaIdentifier);
+				string playerJsonString = string.Empty;
+				jsonLoader.ReadValue(playerBiUid, playerJsonString);
+				
+				SCR_JsonLoadContext playerJsonRead = new SCR_JsonLoadContext();
+				playerJsonRead.ImportFromString(playerJsonString);
+				
+				SCR_JsonSaveContext playerJsonWrite = new SCR_JsonSaveContext();
+				string playerRole = string.Empty;
+				if (playerJsonRead.ReadValue("role", playerRole))
+				{
+					playerJsonWrite.WriteValue("role", playerRole);
+					if (playerRole == roleName)
+					{
+						playersToUpdate.Insert(playerBiUid);
+					}
+				}
+				
+				jsonToBeSaveToFile.WriteValue(playerBiUid, playerJsonWrite.ExportToString());
 			}
+			
+			// Set roleColors
+			string roleColors = string.Empty;
+			jsonLoader.ReadValue("roleColors", roleColors);
+			
+			SCR_JsonLoadContext roloColorsObject = new SCR_JsonLoadContext();
+			roloColorsObject.ImportFromString(roleColors);
+			
+			SCR_JsonSaveContext roleColorsObjectToSave = new SCR_JsonSaveContext();
+			
+			foreach(string role : roles)
+			{
+				string roleColor = "0xffff0000";
+				if (roloColorsObject.ReadValue("color", roleColor))
+				{
+					if (role == roleName)
+					{
+						roleColor = colorHexCode;
+					}
+				}
+				roleColorsObjectToSave.WriteValue(role, roleColor);
+			}
+			
+			// Save file 
+			jsonToBeSaveToFile.WriteValue("players", players);
+			jsonToBeSaveToFile.WriteValue("roles", roles);
+			jsonToBeSaveToFile.WriteValue("roleColors", roleColorsObjectToSave.ExportToString());
+			jsonToBeSaveToFile.SaveToFile(persistedFileLocation);
+			
+			// Update on clients
+			requestPrefixUpdates(playersToUpdate);
+			
+			return "Success!";
 		}
-		
+		else
+		{
+			// No file to edit
+			return "No file to edit.";
+		}
+	}
+	
+	//! Request players to update prefix if online 
+	static void requestPrefixUpdates(array<string> playerBohemiaIdentifiers)
+	{
 		SCR_BaseGameMode gameMode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
 		if (!gameMode)
 		{
 			return;
 		}
-		gameMode.flabby_ServerChatPrefixUpdate(onlinePlayersToUpdateBohemiaIdentifiers);
+		
+		array<int> players = new array<int>();
+		GetGame().GetPlayerManager().GetPlayers(players);
+		for (int i; i < players.Count(); i++)
+		{
+			string playerBiUid = GetGame().GetBackendApi().GetPlayerIdentityId(players.Get(i));
+			if (playerBohemiaIdentifiers.Contains(playerBiUid))
+			{
+				gameMode.TurnOn(players.Get(i));
+			}
+		}
 	}
 }

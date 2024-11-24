@@ -1,105 +1,56 @@
 modded class SCR_BaseGameMode
 {
-	// map<playerIDs, role>
-	protected map<string, string> flabby_staff_chat;
-	// Array of all roles
-	protected array<string> flabby_staff_chat_roles;
-	// Array of all player ids who have roles 
-	protected array<string> flabby_staff_chat_player_identifiers;
+	[RplProp()]
+	int flabby_myPlayerId = -1;
 	
-	//! Update flabby_chat variables if player is in configuration file
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	void flabby_ServerChatPrefix(string playerBohemiaIdentifier)
+	protected void RpcAsk_Authority_Method(int playerId)
 	{
 		// Get player's prefix if has one 
-		string prefix = flabby_staff_chat_roles_configuration.getPlayerPrefix(playerBohemiaIdentifier);
+		string prefix = flabby_staff_chat_roles_configuration.getPlayerPrefix(GetGame().GetBackendApi().GetPlayerIdentityId(playerId));
+		string prefixColor = flabby_staff_chat_roles_configuration.getPrefixColor(prefix);
 		
-		if (prefix.IsEmpty())
-		{
-			// Return no prfix as one was not found
-			Rpc(flabby_OwnerChatPrefix, "");
-			return;
-		}
-		else
-		{
-			// Return the prefix
-			Rpc(flabby_OwnerChatPrefix, string.Format("[%1]", prefix));
-			return;
-		}
+		Rpc(RpcDo_Owner_Method, playerId, string.Format("[%1]", prefix), prefixColor);	
+		Rpc(RpcDo_Broadcast_Method, playerId, string.Format("[%1]", prefix), prefixColor);
+		flabby_myPlayerId = playerId;
+		Replication.BumpMe()
 	}
-	
-	//! Update client variables
+
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void flabby_OwnerChatPrefix(string prefix)
+	protected void RpcDo_Owner_Method(int playerId, string player_prefix, string prefixColor)
 	{
-		SCR_ChatMessageLineComponent.flabby_chat_prefix = prefix;
+		SCR_ChatMessageLineComponent.flabby_chat_prefix = player_prefix;
+		SCR_ChatMessageLineComponent.flabby_chat_color = prefixColor;
 	}
 	
-	void flabby_OnPlayerConnected(int playerId)
-	{
-		if (RplSession.Mode() != RplMode.Dedicated)
-		{
-			Rpc(flabby_ServerChatPrefix, "EDITOR");
-		}
-		else
-		{
-			if (!GetGame())
-			{
-				return;
-			}
-			if (!GetGame().GetBackendApi())
-			{
-				return;
-			}
-				
-			Rpc(flabby_ServerChatPrefix, GetGame().GetBackendApi().GetPlayerIdentityId(playerId));
-		}
-	}
-	
-	override void EOnInit(IEntity owner)
-	{
-		SCR_BaseGameMode gameMode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
-		if (!gameMode)
-			return;
-		
-		gameMode.m_OnPlayerConnected.Insert(flabby_OnPlayerConnected);
-		
-		super.EOnInit(owner);
-	}
-	
-	//! Send data to all clients
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	void flabby_ServerChatPrefixUpdate(notnull array<string> onlinePlayersToUpdateBohemiaIdentifiers)
+	protected void RpcDo_Broadcast_Method(int playerId, string player_prefix, string prefixColor)
 	{
-		if (!GetGame())
+		int lol = GetGame().GetPlayerController().GetPlayerId();
+		if (playerId == flabby_myPlayerId)
 		{
-			return;
-		}
-		if (!GetGame().GetBackendApi())
-		{
-			return;
-		}
-		if (!GetGame().GetPlayerController())
-		{
-			return;
-		}
-		
-		int clientServerIdentifier = GetGame().GetPlayerController().GetPlayerId();
-		string clientBohemiaIdentifier = string.Empty;
-		
-		if (RplSession.Mode() != RplMode.Dedicated)
-		{
-			clientBohemiaIdentifier = "EDITOR";
-		}
-		else
-		{
-			clientBohemiaIdentifier = GetGame().GetBackendApi().GetPlayerIdentityId(clientServerIdentifier);
-		}
-		
-		
-		if (onlinePlayersToUpdateBohemiaIdentifiers.Contains(clientBohemiaIdentifier))
-		{
-			flabby_OnPlayerConnected(clientServerIdentifier);
+			SCR_ChatMessageLineComponent.flabby_chat_prefix = player_prefix;
+			SCR_ChatMessageLineComponent.flabby_chat_color = prefixColor;
 		}
 	}
+
+	// public methods
+	void TurnOn(int playerId)
+	{
+		Rpc(RpcAsk_Authority_Method, playerId);
+	}
+	
+	// overrides
+	override void OnPlayerRegistered(int playerId)
+	{
+		super.OnPlayerRegistered(playerId);
+		TurnOn(playerId);
+	}
+	
+	override void OnPlayerAuditSuccess( int iPlayerID )
+	{
+		super.OnPlayerAuditSuccess(iPlayerID);
+		TurnOn(iPlayerID);
+	}
+	
 }

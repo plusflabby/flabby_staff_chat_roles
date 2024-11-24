@@ -58,29 +58,20 @@ class flabby_staff_chat_roles_commands : ScrServerCommand
 				flabby_staff_chat_roles_configuration.editRoleName(argv[3], argv[4]);
 				return ScrServerCmdResult("Success, saved name.", EServerCmdResultType.OK);
 			}
+			if (argv[1] == "edit" && argv[2] == "color")
+			{
+				return ScrServerCmdResult(flabby_staff_chat_roles_configuration.editMessageColor(argv[3], argv[4]), EServerCmdResultType.OK);
+			}
 			
 			// Player functions
 			if (argv[1] == "add" && argv[2] == "player")
 			{
-				if (RplSession.Mode() != RplMode.Dedicated)
-				{
-					return ScrServerCmdResult(flabby_staff_chat_roles_configuration.addRoleToPlayer("EDITOR", argv[4]), EServerCmdResultType.OK);
-				}
-				else 
-				{
-					return ScrServerCmdResult(flabby_staff_chat_roles_configuration.addRoleToPlayer(argv[3], argv[4]), EServerCmdResultType.OK);
-				}
+				return ScrServerCmdResult(flabby_staff_chat_roles_configuration.addRoleToPlayer(argv[3], argv[4]), EServerCmdResultType.OK);
+				
 			}
 			if (argv[1] == "remove" && argv[2] == "player")
 			{
-				if (RplSession.Mode() != RplMode.Dedicated)
-				{
-					return ScrServerCmdResult(flabby_staff_chat_roles_configuration.removeRoleFromPlayer("EDITOR"), EServerCmdResultType.OK);
-				}
-				else 
-				{
-					return ScrServerCmdResult(flabby_staff_chat_roles_configuration.removeRoleFromPlayer(argv[3]), EServerCmdResultType.OK);
-				}
+				return ScrServerCmdResult(flabby_staff_chat_roles_configuration.removeRoleFromPlayer(argv[3]), EServerCmdResultType.OK);
 			}
 			if (argv[1] == "clear" && argv[2] == "players")
 			{
