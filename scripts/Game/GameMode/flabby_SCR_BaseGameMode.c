@@ -1,56 +1,93 @@
 modded class SCR_BaseGameMode
 {
-	[RplProp()]
-	int flabby_myPlayerId = -1;
+	/*
 	
+		Methods for updating data about who has roles on client devices 
+	
+	*/
+	ref map<string, string> flabby_staffChatRoles_players = new map<string, string>();
+	// Server rpc function
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_Authority_Method(int playerId)
+	protected void RpcAsk_Server_Update()
 	{
-		// Get player's prefix if has one 
-		string prefix = flabby_staff_chat_roles_configuration.getPlayerPrefix(GetGame().GetBackendApi().GetPlayerIdentityId(playerId));
-		string prefixColor = flabby_staff_chat_roles_configuration.getPrefixColor(prefix);
+		if (!GetGame())
+			return;
+		if (!GetGame().GetPlayerManager())
+			return;
 		
-		Rpc(RpcDo_Owner_Method, playerId, string.Format("[%1]", prefix), prefixColor);	
-		Rpc(RpcDo_Broadcast_Method, playerId, string.Format("[%1]", prefix), prefixColor);
-		flabby_myPlayerId = playerId;
-		Replication.BumpMe()
+		ref array<int> players = new array<int>();
+		GetGame().GetPlayerManager().GetPlayers(players);
+		ref array<string> keyObj = new array<string>();
+		ref array<string> valueObj = new array<string>();
+		
+		for (int i = 0; i < players.Count(); i++)
+		{
+			keyObj.Insert(string.Format("%1", players.Get(i)));
+			// Get prefix
+			string prefix = flabby_staff_chat_roles_configuration.getPlayerPrefix(GetGame().GetBackendApi().GetPlayerIdentityId(players.Get(i)));
+			valueObj.Insert(prefix);
+			// Get all roles
+		}
+		
+		flabby_Rpc_Update_Array(keyObj, valueObj);
+		Rpc(flabby_Rpc_Update_Array, keyObj, valueObj);
 	}
-
-	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void RpcDo_Owner_Method(int playerId, string player_prefix, string prefixColor)
+	
+	// Public method
+	void flabbyUpdateVariables()
 	{
-		SCR_ChatMessageLineComponent.flabby_chat_prefix = player_prefix;
-		SCR_ChatMessageLineComponent.flabby_chat_color = prefixColor;
+		Rpc(RpcAsk_Server_Update);
+		Rpc(flabby_RpcAskServerUpdateRoles);
+	}
+	
+	// Server only function
+	override void OnPlayerConnected(int playerId)
+	{
+		super.OnPlayerConnected(playerId);
+		flabbyUpdateVariables();
 	}
 	
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void RpcDo_Broadcast_Method(int playerId, string player_prefix, string prefixColor)
+	protected void flabby_Rpc_Update_Array(array<string> keys, array<string> values)
 	{
-		int lol = GetGame().GetPlayerController().GetPlayerId();
-		if (playerId == flabby_myPlayerId)
+		flabby_staffChatRoles_players.Clear();
+		if (keys.Count() == 0)
+			return;
+		for (int i; i < keys.Count(); i++)
 		{
-			SCR_ChatMessageLineComponent.flabby_chat_prefix = player_prefix;
-			SCR_ChatMessageLineComponent.flabby_chat_color = prefixColor;
+			flabby_staffChatRoles_players.Insert(keys.Get(i), values.Get(i));
 		}
 	}
-
-	// public methods
-	void TurnOn(int playerId)
-	{
-		Rpc(RpcAsk_Authority_Method, playerId);
-	}
 	
-	// overrides
-	override void OnPlayerRegistered(int playerId)
-	{
-		super.OnPlayerRegistered(playerId);
-		TurnOn(playerId);
-	}
+	/*
 	
-	override void OnPlayerAuditSuccess( int iPlayerID )
-	{
-		super.OnPlayerAuditSuccess(iPlayerID);
-		TurnOn(iPlayerID);
-	}
+		Methods for updating data about roles on client devices
 	
+	*/
+	ref map<string, string> flabby_staffChatRoles = new map<string, string>();
+	// Send data to clients
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void flabby_RpcAskServerUpdateRoles()
+	{
+		ref array<ref array<string>> rolesWIthColors_ = flabby_staff_chat_roles_configuration.getAllPrefixeWithColor();
+		flabby_RpcGetUpdateRoles(rolesWIthColors_.Get(0), rolesWIthColors_.Get(1));
+		Rpc(flabby_RpcGetUpdateRoles, rolesWIthColors_.Get(0), rolesWIthColors_.Get(1));
+	}
+	// Update data on client
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void flabby_RpcGetUpdateRoles(array<string> keys, array<string> values)
+	{
+		flabby_staffChatRoles.Clear();
+		if (keys.Count() == 0)
+			return;
+		for (int i; i < keys.Count(); i++)
+		{
+			flabby_staffChatRoles.Insert(keys.Get(i), values.Get(i));
+		}
+	}
+	// Public method to update variable
+	void flabbyUpdateVariable()
+	{
+		Rpc(flabby_RpcAskServerUpdateRoles);
+	}
 }

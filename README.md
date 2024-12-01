@@ -6,9 +6,9 @@
 
 Support: https://flabby.dev/discord
 
-Commands require you to log-in as admin. (#login)
-
 Command for help: #chatroles help
+
+Commands require you to #login as admin.
 
 Commands List:
 - #cr add player [Bohemia-Identifier] [Role-Name]
@@ -23,5 +23,5 @@ Commands List:
 Examples: 
 - #cr add role MOD
 - #cr edit name MOD ADMIN
-- #cr edit color ADMIN red
+- #cr edit color ADMIN blue
 - #cr add player c68a383e-209a-4e78-b61e-ff36cf338235 ADMIN

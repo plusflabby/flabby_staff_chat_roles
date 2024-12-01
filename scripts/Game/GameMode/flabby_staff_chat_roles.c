@@ -1,10 +1,5 @@
 modded class SCR_ChatMessageLineComponent
 {
-	//! If player has a prefix here it is
-	static string flabby_chat_prefix;
-	//! If color is set for chat here it is
-	static string flabby_chat_color;
-	
 	override void SetMessage(notnull SCR_ChatMessage msg, SCR_ChatMessageStyle style)
 	{
 		super.SetMessage(msg, style);
@@ -15,31 +10,43 @@ modded class SCR_ChatMessageLineComponent
 			return;
 		}
 		
-		// Dpes player have prefix 
-		if (!flabby_chat_prefix.IsEmpty())
-		{
-			m_Widgets.m_MessageText.SetText(string.Format("%1 | %2", flabby_chat_prefix, m_Widgets.m_MessageText.GetText()));
-		}
+		SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
 		
-		// Dpes player have color 
-		if (!flabby_chat_color.IsEmpty())
+		// CHeck if senderId has a role 
+		int senderId = messageGeneral.m_iSenderId;
+	 	string senderPrefix = gm.flabby_staffChatRoles_players.Get(messageGeneral.m_iSenderId.ToString());
+		
+		// Dpes player have prefix 
+		if (senderPrefix.IsEmpty() == false)
 		{
-			flabby_chat_color.ToUpper();
+			// Set Prefix
+			m_Widgets.m_MessageText.SetText(string.Format("[%1] | %2", senderPrefix, m_Widgets.m_MessageText.GetText()));
 			
-			if (flabby_chat_color == "RED")
-				m_Widgets.m_MessageText.SetColor(Color.Red);
-			if (flabby_chat_color == "GREEN")
-				m_Widgets.m_MessageText.SetColor(Color.Green);
-			if (flabby_chat_color == "BLUE")
-				m_Widgets.m_MessageText.SetColor(Color.Blue);
-			if (flabby_chat_color == "ORANGE")
-				m_Widgets.m_MessageText.SetColor(Color.Orange);
-			if (flabby_chat_color == "YELLOW")
-				m_Widgets.m_MessageText.SetColor(Color.Yellow);
-			if (flabby_chat_color == "BLACK")
-				m_Widgets.m_MessageText.SetColor(Color.Black);
-			if (flabby_chat_color == "WHITE")
-				m_Widgets.m_MessageText.SetColor(Color.White);
+			//Check if role has color 
+			string roleColor = string.Empty;
+			roleColor = gm.flabby_staffChatRoles.Get(senderPrefix);
+			
+			// Does player have color 
+			if (roleColor.IsEmpty() == false)
+			{
+				roleColor.ToUpper();
+				
+				// Set message color
+				if (roleColor == "RED")
+					m_Widgets.m_MessageText.SetColor(Color.Red);
+				if (roleColor == "GREEN")
+					m_Widgets.m_MessageText.SetColor(Color.Green);
+				if (roleColor == "BLUE")
+					m_Widgets.m_MessageText.SetColor(Color.Blue);
+				if (roleColor == "ORANGE")
+					m_Widgets.m_MessageText.SetColor(Color.Orange);
+				if (roleColor == "YELLOW")
+					m_Widgets.m_MessageText.SetColor(Color.Yellow);
+				if (roleColor == "BLACK")
+					m_Widgets.m_MessageText.SetColor(Color.Black);
+				if (roleColor == "WHITE")
+					m_Widgets.m_MessageText.SetColor(Color.White);
+			}
 		}
 	}
 }

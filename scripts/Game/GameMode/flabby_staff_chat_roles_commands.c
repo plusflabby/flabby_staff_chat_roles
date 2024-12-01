@@ -38,8 +38,7 @@ class flabby_staff_chat_roles_commands : ScrServerCommand
 			// Role functions
 			if (argv[1] == "add" && argv[2] == "role")
 			{
-				flabby_staff_chat_roles_configuration.addRoleCategory(argv[3]);
-				return ScrServerCmdResult(string.Format("Success, added %1 role.", argv[3]), EServerCmdResultType.OK);
+				return ScrServerCmdResult(flabby_staff_chat_roles_configuration.addRoleCategory(argv[3]), EServerCmdResultType.OK);
 			}
 			if (argv[1] == "remove" && argv[2] == "role")
 			{
@@ -56,11 +55,12 @@ class flabby_staff_chat_roles_commands : ScrServerCommand
 			if (argv[1] == "edit" && argv[2] == "name")
 			{
 				flabby_staff_chat_roles_configuration.editRoleName(argv[3], argv[4]);
-				return ScrServerCmdResult("Success, saved name.", EServerCmdResultType.OK);
+				return ScrServerCmdResult(string.Format("Success, changed name from %1 -> %2.", argv[3], argv[4]), EServerCmdResultType.OK);
 			}
 			if (argv[1] == "edit" && argv[2] == "color")
 			{
-				return ScrServerCmdResult(flabby_staff_chat_roles_configuration.editMessageColor(argv[3], argv[4]), EServerCmdResultType.OK);
+				flabby_staff_chat_roles_configuration.editMessageColor(argv[3], argv[4])
+				return ScrServerCmdResult(string.Format("Success, added color %2 to role %1", argv[3], argv[4]), EServerCmdResultType.OK);
 			}
 			
 			// Player functions
