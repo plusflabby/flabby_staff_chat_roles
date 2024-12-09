@@ -59,11 +59,11 @@ class flabby_staff_chat_roles_commands : ScrServerCommand
 			}
 			if (argv[1] == "edit" && argv[2] == "color")
 			{
-				flabby_staff_chat_roles_configuration.editMessageColor(argv[3], argv[4])
+				flabby_staff_chat_roles_configuration.editMessageColor(argv[3], argv[4]);
 				return ScrServerCmdResult(string.Format("Success, added color %2 to role %1", argv[3], argv[4]), EServerCmdResultType.OK);
 			}
 			
-			// Player functions
+			// Player functionsd
 			if (argv[1] == "add" && argv[2] == "player")
 			{
 				return ScrServerCmdResult(flabby_staff_chat_roles_configuration.addRoleToPlayer(argv[3], argv[4]), EServerCmdResultType.OK);
