@@ -20,7 +20,7 @@ modded class SCR_ChatMessageLineComponent
 		if (senderPrefix.IsEmpty() == false)
 		{
 			// Set Prefix
-			m_Widgets.m_MessageText.SetText(string.Format("[%1] | %2", senderPrefix, m_Widgets.m_MessageText.GetText()));
+			m_Widgets.m_wMessageText.SetText(string.Format("[%1] | %2", senderPrefix, m_Widgets.m_wMessageText.GetText()));
 			
 			//Check if role has color 
 			string roleColor = string.Empty;
@@ -33,19 +33,19 @@ modded class SCR_ChatMessageLineComponent
 				
 				// Set message color
 				if (roleColor == "RED")
-					m_Widgets.m_MessageText.SetColor(Color.Red);
+					m_Widgets.m_wMessageText.SetColor(Color.Red);
 				if (roleColor == "GREEN")
-					m_Widgets.m_MessageText.SetColor(Color.Green);
+					m_Widgets.m_wMessageText.SetColor(Color.Green);
 				if (roleColor == "BLUE")
-					m_Widgets.m_MessageText.SetColor(Color.Blue);
+					m_Widgets.m_wMessageText.SetColor(Color.Blue);
 				if (roleColor == "ORANGE")
-					m_Widgets.m_MessageText.SetColor(Color.Orange);
+					m_Widgets.m_wMessageText.SetColor(Color.Orange);
 				if (roleColor == "YELLOW")
-					m_Widgets.m_MessageText.SetColor(Color.Yellow);
+					m_Widgets.m_wMessageText.SetColor(Color.Yellow);
 				if (roleColor == "BLACK")
-					m_Widgets.m_MessageText.SetColor(Color.Black);
+					m_Widgets.m_wMessageText.SetColor(Color.Black);
 				if (roleColor == "WHITE")
-					m_Widgets.m_MessageText.SetColor(Color.White);
+					m_Widgets.m_wMessageText.SetColor(Color.White);
 			}
 		}
 	}
