@@ -4,45 +4,28 @@ modded class SCR_ChatMessageLineComponent
 	{
 		super.SetMessage(msg, style);
 		
-		SCR_ChatMessageGeneral messageGeneral = SCR_ChatMessageGeneral.Cast(msg);
-		if (!messageGeneral)
-		{
-			return;
-		}
-		
-		int senderId = messageGeneral.m_iSenderId;
-		
-		Print(senderId);
-		
 		if (!GetGame())
 			return;
 		if (!GetGame().GetBackendApi())
 			return;
 		
+		SCR_ChatMessageGeneral messageGeneral = SCR_ChatMessageGeneral.Cast(msg);
 		SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+		int senderId = messageGeneral.m_iSenderId;
 		
-		Print(gm.flabby_PlayerUIDs);
-		Print(gm.flabby_PlayerUIDs.Count());
+		if (!messageGeneral)
+		{
+			return;
+		}
 		
 		string playerBiUid = string.Empty;
 		foreach (flabby_BIUIDs p : gm.flabby_PlayerUIDs)
 		{
-			Print(p);
-			Print(p.id);
-			Print(p.biuid);
-			Print(senderId.ToString());
-			Print(p.id == senderId.ToString());
 			if (p.id == senderId.ToString())
 			{
 				playerBiUid = p.biuid;
-				Print(playerBiUid);
-				Print(playerBiUid);
-				Print(playerBiUid);
 			}
 		}
-		
-		
-		Print(playerBiUid);
 		
 	 	string senderPrefix = string.Empty;
 		foreach (flabby_Player player : gm.flabby_PlayersWithRoles)
@@ -52,8 +35,6 @@ modded class SCR_ChatMessageLineComponent
 				senderPrefix = player.role;
 			}
 		}
-		
-		Print(senderPrefix);
 		
 		// Does player have prefix 
 		if (senderPrefix.IsEmpty() == false)
@@ -65,16 +46,11 @@ modded class SCR_ChatMessageLineComponent
 			string roleColor = string.Empty;
 			foreach (flabby_Role role : gm.flabby_RolesWithColors)
 			{
-				Print(role);
-				Print(senderPrefix);
-				Print(role.color);
 				if (role.role == senderPrefix)
 				{
 					roleColor = role.color;
 				}
 			}
-			Print(roleColor);
-			Print(senderPrefix);
 			
 			// Does player have color 
 			if (roleColor.IsEmpty() == false)

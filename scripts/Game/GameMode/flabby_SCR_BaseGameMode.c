@@ -26,7 +26,6 @@ modded class SCR_BaseGameMode
 	
 	void updateVariables()
 	{
-		Print("SCR_BaseGameMode void updateVariables() called");
 		flabby_PlayersWithRoles = flabby_staff_chat_roles_configuration.getAllPlayersWithRoles();
 		flabby_RolesWithColors = flabby_staff_chat_roles_configuration.getAllPrefixsWithColor();
 		Replication.BumpMe();
@@ -34,14 +33,11 @@ modded class SCR_BaseGameMode
 	
 	void updateflabby_PlayerUIDs_disconnected(int playerId, KickCauseCode cause = KickCauseCode.NONE, int timeout = -1)
 	{
-		Print(Replication.IsServer());
 		string playerBiUIDstr = GetGame().GetBackendApi().GetPlayerIdentityId(playerId);
 		if (playerBiUIDstr.IsEmpty()) return;
-		Print("SCR_BaseGameMode void updateflabby_PlayerUIDs_disconnected() called");
 		ref flabby_BIUIDs playerBiUID = new flabby_BIUIDs();
 		playerBiUID.id = playerId.ToString();
 		playerBiUID.biuid = playerBiUIDstr;
-		Print(playerBiUID.biuid);
 		for (int i; i < flabby_PlayerUIDs.Count(); i++)
 		{
 			ref flabby_BIUIDs player = flabby_PlayerUIDs.Get(i);
@@ -57,14 +53,11 @@ modded class SCR_BaseGameMode
 	}
 	void updateflabby_PlayerUIDs_connected(int playerId)
 	{
-		Print(Replication.IsServer());
 		string playerBiUIDstr = GetGame().GetBackendApi().GetPlayerIdentityId(playerId);
 		if (playerBiUIDstr.IsEmpty()) return;
-		Print("SCR_BaseGameMode void updateflabby_PlayerUIDs_connected() called");
 		ref flabby_BIUIDs playerBiUID = new flabby_BIUIDs();
 		playerBiUID.id = playerId.ToString();
 		playerBiUID.biuid = playerBiUIDstr;
-		Print(playerBiUID.biuid);
 		if (flabby_PlayerUIDs.Find(playerBiUID) == -1)
 		{
 			flabby_PlayerUIDs.Insert(playerBiUID);
@@ -76,7 +69,6 @@ modded class SCR_BaseGameMode
 	{
 		if (!GetGame()) return;
 		if (!GetGame().GetBackendApi()) return;
-		Print("SCR_BaseGameMode void updateflabby_PlayerUIDs() called");
 		
 		array<int> players = new array<int>();
 		GetGame().GetPlayerManager().GetPlayers(players);
@@ -88,7 +80,6 @@ modded class SCR_BaseGameMode
 			string playerBiUIDstr = GetGame().GetBackendApi().GetPlayerIdentityId(id);
 			if (playerBiUIDstr.IsEmpty()) return;
 			playerBiUID.biuid = playerBiUIDstr;
-			Print(playerBiUID.biuid);
 			if (flabby_PlayerUIDs.Find(playerBiUID) == -1)
 			{
 				flabby_PlayerUIDs.Insert(playerBiUID);
