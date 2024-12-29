@@ -10,13 +10,52 @@ modded class SCR_ChatMessageLineComponent
 			return;
 		}
 		
+		int senderId = messageGeneral.m_iSenderId;
+		
+		Print(senderId);
+		
+		if (!GetGame())
+			return;
+		if (!GetGame().GetBackendApi())
+			return;
+		
 		SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
 		
-		// CHeck if senderId has a role 
-		int senderId = messageGeneral.m_iSenderId;
-	 	string senderPrefix = gm.flabby_staffChatRoles_players.Get(messageGeneral.m_iSenderId.ToString());
+		Print(gm.flabby_PlayerUIDs);
+		Print(gm.flabby_PlayerUIDs.Count());
 		
-		// Dpes player have prefix 
+		string playerBiUid = string.Empty;
+		foreach (flabby_BIUIDs p : gm.flabby_PlayerUIDs)
+		{
+			Print(p);
+			Print(p.id);
+			Print(p.biuid);
+			Print(senderId.ToString());
+			Print(p.id == senderId.ToString());
+			if (p.id == senderId.ToString())
+			{
+				playerBiUid = p.biuid;
+				Print(playerBiUid);
+				Print(playerBiUid);
+				Print(playerBiUid);
+			}
+		}
+		
+		
+		Print(playerBiUid);
+		
+	 	string senderPrefix = string.Empty;
+		foreach (flabby_Player player : gm.flabby_PlayersWithRoles)
+		{
+			if (player.uid == playerBiUid)
+			{
+				senderPrefix = player.role;
+			}
+		}
+		
+		Print(senderPrefix);
+		
+		// Does player have prefix 
 		if (senderPrefix.IsEmpty() == false)
 		{
 			// Set Prefix
@@ -24,7 +63,18 @@ modded class SCR_ChatMessageLineComponent
 			
 			//Check if role has color 
 			string roleColor = string.Empty;
-			roleColor = gm.flabby_staffChatRoles.Get(senderPrefix);
+			foreach (flabby_Role role : gm.flabby_RolesWithColors)
+			{
+				Print(role);
+				Print(senderPrefix);
+				Print(role.color);
+				if (role.role == senderPrefix)
+				{
+					roleColor = role.color;
+				}
+			}
+			Print(roleColor);
+			Print(senderPrefix);
 			
 			// Does player have color 
 			if (roleColor.IsEmpty() == false)

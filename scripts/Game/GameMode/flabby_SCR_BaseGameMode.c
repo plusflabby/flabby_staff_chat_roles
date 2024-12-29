@@ -1,93 +1,269 @@
 modded class SCR_BaseGameMode
 {
-	/*
+	[RplProp()]
+	ref array<ref flabby_Player> flabby_PlayersWithRoles = new array<ref flabby_Player>();
+	[RplProp()]
+	ref array<ref flabby_Role> flabby_RolesWithColors = new array<ref flabby_Role>();
+	[RplProp()]
+	ref array<ref flabby_BIUIDs> flabby_PlayerUIDs = new array<ref flabby_BIUIDs>();
 	
-		Methods for updating data about who has roles on client devices 
 	
-	*/
-	ref map<string, string> flabby_staffChatRoles_players = new map<string, string>();
-	// Server rpc function
-	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_Server_Update()
+	override void EOnInit(IEntity owner)
 	{
-		if (!GetGame())
-			return;
-		if (!GetGame().GetPlayerManager())
-			return;
+		super.EOnInit(owner);
 		
-		ref array<int> players = new array<int>();
-		GetGame().GetPlayerManager().GetPlayers(players);
-		ref array<string> keyObj = new array<string>();
-		ref array<string> valueObj = new array<string>();
-		
-		for (int i = 0; i < players.Count(); i++)
-		{
-			keyObj.Insert(string.Format("%1", players.Get(i)));
-			// Get prefix
-			string prefix = flabby_staff_chat_roles_configuration.getPlayerPrefix(GetGame().GetBackendApi().GetPlayerIdentityId(players.Get(i)));
-			valueObj.Insert(prefix);
-			// Get all roles
-		}
-		
-		flabby_Rpc_Update_Array(keyObj, valueObj);
-		Rpc(flabby_Rpc_Update_Array, keyObj, valueObj);
+		updateVariables(); 	
+		setflabby_PlayerUIDs();
+		m_OnPlayerAuditSuccess.Insert(updateflabby_PlayerUIDs_connected);
+		m_OnPlayerDisconnected.Insert(updateflabby_PlayerUIDs_disconnected);
 	}
 	
-	// Public method
-	void flabbyUpdateVariables()
-	{
-		Rpc(RpcAsk_Server_Update);
-		Rpc(flabby_RpcAskServerUpdateRoles);
-	}
-	
-	// Server only function
 	override void OnPlayerConnected(int playerId)
 	{
+		updateflabby_PlayerUIDs_connected(playerId);
 		super.OnPlayerConnected(playerId);
-		flabbyUpdateVariables();
 	}
 	
-	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void flabby_Rpc_Update_Array(array<string> keys, array<string> values)
+	void updateVariables()
 	{
-		flabby_staffChatRoles_players.Clear();
-		if (keys.Count() == 0)
-			return;
-		for (int i; i < keys.Count(); i++)
+		Print("SCR_BaseGameMode void updateVariables() called");
+		flabby_PlayersWithRoles = flabby_staff_chat_roles_configuration.getAllPlayersWithRoles();
+		flabby_RolesWithColors = flabby_staff_chat_roles_configuration.getAllPrefixsWithColor();
+		Replication.BumpMe();
+	}
+	
+	void updateflabby_PlayerUIDs_disconnected(int playerId, KickCauseCode cause = KickCauseCode.NONE, int timeout = -1)
+	{
+		Print(Replication.IsServer());
+		string playerBiUIDstr = GetGame().GetBackendApi().GetPlayerIdentityId(playerId);
+		if (playerBiUIDstr.IsEmpty()) return;
+		Print("SCR_BaseGameMode void updateflabby_PlayerUIDs_disconnected() called");
+		ref flabby_BIUIDs playerBiUID = new flabby_BIUIDs();
+		playerBiUID.id = playerId.ToString();
+		playerBiUID.biuid = playerBiUIDstr;
+		Print(playerBiUID.biuid);
+		for (int i; i < flabby_PlayerUIDs.Count(); i++)
 		{
-			flabby_staffChatRoles_players.Insert(keys.Get(i), values.Get(i));
+			ref flabby_BIUIDs player = flabby_PlayerUIDs.Get(i);
+			int hash1 = player.toHash();
+			
+			if (hash1 == playerBiUID.toHash())
+			{
+				flabby_PlayerUIDs.Remove(i);
+			}
 		}
+		flabby_PlayerUIDs.Sort();
+		Replication.BumpMe();
 	}
-	
-	/*
-	
-		Methods for updating data about roles on client devices
-	
-	*/
-	ref map<string, string> flabby_staffChatRoles = new map<string, string>();
-	// Send data to clients
-	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void flabby_RpcAskServerUpdateRoles()
+	void updateflabby_PlayerUIDs_connected(int playerId)
 	{
-		ref array<ref array<string>> rolesWIthColors_ = flabby_staff_chat_roles_configuration.getAllPrefixeWithColor();
-		flabby_RpcGetUpdateRoles(rolesWIthColors_.Get(0), rolesWIthColors_.Get(1));
-		Rpc(flabby_RpcGetUpdateRoles, rolesWIthColors_.Get(0), rolesWIthColors_.Get(1));
-	}
-	// Update data on client
-	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void flabby_RpcGetUpdateRoles(array<string> keys, array<string> values)
-	{
-		flabby_staffChatRoles.Clear();
-		if (keys.Count() == 0)
-			return;
-		for (int i; i < keys.Count(); i++)
+		Print(Replication.IsServer());
+		string playerBiUIDstr = GetGame().GetBackendApi().GetPlayerIdentityId(playerId);
+		if (playerBiUIDstr.IsEmpty()) return;
+		Print("SCR_BaseGameMode void updateflabby_PlayerUIDs_connected() called");
+		ref flabby_BIUIDs playerBiUID = new flabby_BIUIDs();
+		playerBiUID.id = playerId.ToString();
+		playerBiUID.biuid = playerBiUIDstr;
+		Print(playerBiUID.biuid);
+		if (flabby_PlayerUIDs.Find(playerBiUID) == -1)
 		{
-			flabby_staffChatRoles.Insert(keys.Get(i), values.Get(i));
+			flabby_PlayerUIDs.Insert(playerBiUID);
 		}
+		flabby_PlayerUIDs.Sort();
+		Replication.BumpMe();
 	}
-	// Public method to update variable
-	void flabbyUpdateVariable()
+	void setflabby_PlayerUIDs()
 	{
-		Rpc(flabby_RpcAskServerUpdateRoles);
+		if (!GetGame()) return;
+		if (!GetGame().GetBackendApi()) return;
+		Print("SCR_BaseGameMode void updateflabby_PlayerUIDs() called");
+		
+		array<int> players = new array<int>();
+		GetGame().GetPlayerManager().GetPlayers(players);
+		foreach (int id : players)
+		{
+			ref flabby_BIUIDs playerBiUID = new flabby_BIUIDs();
+			playerBiUID.id = id.ToString();
+			
+			string playerBiUIDstr = GetGame().GetBackendApi().GetPlayerIdentityId(id);
+			if (playerBiUIDstr.IsEmpty()) return;
+			playerBiUID.biuid = playerBiUIDstr;
+			Print(playerBiUID.biuid);
+			if (flabby_PlayerUIDs.Find(playerBiUID) == -1)
+			{
+				flabby_PlayerUIDs.Insert(playerBiUID);
+			}
+		}
+		
+		Replication.BumpMe();
+	}
+	void clearflabby_PlayerUIDs()
+	{
+		flabby_PlayerUIDs.Clear();
+		Replication.BumpMe();
+	}
+}
+
+class flabby_Player : JsonApiStruct
+{
+	string uid;
+	string role;
+
+	void MyObject()
+	{
+		RegV("uid");
+		RegV("role");
+	}
+	
+	int toHash()
+	{
+		return string.Format("%1_%2", uid, role).Hash();
+	}
+	
+	
+	static bool Extract(flabby_Player instance, ScriptCtx ctx, SSnapSerializerBase snapshot)
+	{
+		snapshot.SerializeString(instance.uid);
+		snapshot.SerializeString(instance.role);
+		return true;
+	}
+
+	static bool Inject(SSnapSerializerBase snapshot, ScriptCtx ctx, flabby_Player instance)
+	{
+		snapshot.SerializeString(instance.uid);
+		snapshot.SerializeString(instance.role);
+		return true;
+	}
+
+	static void Encode(SSnapSerializerBase snapshot, ScriptCtx ctx, ScriptBitSerializer packet)
+	{
+		snapshot.EncodeString(packet);
+		snapshot.EncodeString(packet);
+	}
+
+	static bool Decode(ScriptBitSerializer packet, ScriptCtx ctx, SSnapSerializerBase snapshot)
+	{
+		snapshot.DecodeString(packet);
+		snapshot.DecodeString(packet);
+		return true;
+	}
+
+	static bool SnapCompare(SSnapSerializerBase lhs, SSnapSerializerBase rhs , ScriptCtx ctx)
+	{
+		return lhs.CompareStringSnapshots(rhs)
+		    && lhs.CompareStringSnapshots(rhs);
+	}
+
+	static bool PropCompare(flabby_Player instance, SSnapSerializerBase snapshot, ScriptCtx ctx)
+	{
+		return snapshot.CompareString(instance.uid);
+	}
+}
+class flabby_Role : JsonApiStruct
+{
+	string color;
+	string role;
+
+	void MyObject()
+	{
+		RegV("color");
+		RegV("role");
+	}
+	
+	int toHash()
+	{
+		return string.Format("%1_%2", color, role).Hash();
+	}
+	
+	static bool Extract(flabby_Role instance, ScriptCtx ctx, SSnapSerializerBase snapshot)
+	{
+		snapshot.SerializeString(instance.color);
+		snapshot.SerializeString(instance.role);
+		return true;
+	}
+
+	static bool Inject(SSnapSerializerBase snapshot, ScriptCtx ctx, flabby_Role instance)
+	{
+		snapshot.SerializeString(instance.color);
+		snapshot.SerializeString(instance.role);
+		return true;
+	}
+
+	static void Encode(SSnapSerializerBase snapshot, ScriptCtx ctx, ScriptBitSerializer packet)
+	{
+		snapshot.EncodeString(packet);
+		snapshot.EncodeString(packet);
+	}
+
+	static bool Decode(ScriptBitSerializer packet, ScriptCtx ctx, SSnapSerializerBase snapshot)
+	{
+		snapshot.DecodeString(packet);
+		snapshot.DecodeString(packet);
+		return true;
+	}
+
+	static bool SnapCompare(SSnapSerializerBase lhs, SSnapSerializerBase rhs , ScriptCtx ctx)
+	{
+		return lhs.CompareStringSnapshots(rhs)
+		    && lhs.CompareStringSnapshots(rhs);
+	}
+
+	static bool PropCompare(flabby_Role instance, SSnapSerializerBase snapshot, ScriptCtx ctx)
+	{
+		return snapshot.CompareString(instance.role);
+	}
+}
+class flabby_BIUIDs : JsonApiStruct
+{
+	string id;
+	string biuid;
+
+	void MyObject()
+	{
+		RegV("id");
+		RegV("biuid");
+	}
+	
+	int toHash()
+	{
+		return string.Format("%1_%2", id, biuid).Hash();
+	}
+	
+	static bool Extract(flabby_BIUIDs instance, ScriptCtx ctx, SSnapSerializerBase snapshot)
+	{
+		snapshot.SerializeString(instance.id);
+		snapshot.SerializeString(instance.biuid);
+		return true;
+	}
+
+	static bool Inject(SSnapSerializerBase snapshot, ScriptCtx ctx, flabby_BIUIDs instance)
+	{
+		snapshot.SerializeString(instance.id);
+		snapshot.SerializeString(instance.biuid);
+		return true;
+	}
+
+	static void Encode(SSnapSerializerBase snapshot, ScriptCtx ctx, ScriptBitSerializer packet)
+	{
+		snapshot.EncodeString(packet);
+		snapshot.EncodeString(packet);
+	}
+
+	static bool Decode(ScriptBitSerializer packet, ScriptCtx ctx, SSnapSerializerBase snapshot)
+	{
+		snapshot.DecodeString(packet);
+		snapshot.DecodeString(packet);
+		return true;
+	}
+
+	static bool SnapCompare(SSnapSerializerBase lhs, SSnapSerializerBase rhs , ScriptCtx ctx)
+	{
+		return lhs.CompareStringSnapshots(rhs)
+		    && lhs.CompareStringSnapshots(rhs);
+	}
+
+	static bool PropCompare(flabby_BIUIDs instance, SSnapSerializerBase snapshot, ScriptCtx ctx)
+	{
+		return snapshot.CompareString(instance.id);
 	}
 }

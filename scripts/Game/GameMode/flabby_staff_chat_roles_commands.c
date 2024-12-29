@@ -35,6 +35,15 @@ class flabby_staff_chat_roles_commands : ScrServerCommand
 	{
 		if (argv.Count() > 1)
 		{
+			if (argv[1] == "update")
+			{
+				SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+				gm.updateVariables();
+				gm.clearflabby_PlayerUIDs();
+				gm.setflabby_PlayerUIDs();
+				return ScrServerCmdResult("Success, ran 3 cmds on SCR_BaseGameMode.", EServerCmdResultType.OK);
+			}
+			
 			// Role functions
 			if (argv[1] == "add" && argv[2] == "role")
 			{

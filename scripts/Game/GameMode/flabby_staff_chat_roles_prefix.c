@@ -1,16 +1,5 @@
 modded class flabby_staff_chat_roles_configuration
 {
-	//! Request players to update prefix if online 
-	static void requestPrefixUpdates(array<string> playerBohemiaIdentifiers)
-	{
-		SCR_BaseGameMode gameMode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
-		if (!gameMode)
-		{
-			return;
-		}
-		
-		gameMode.flabbyUpdateVariables();
-	}
 	
 	//! Add a new role
 	static string addRoleCategory(string roleName)
@@ -41,6 +30,12 @@ modded class flabby_staff_chat_roles_configuration
 			string playerRoles = string.Empty;
 			jsonLoader.ReadValue("players_with_role", playerRoles);
 			jsonSaver.WriteValue("players_with_role", playerRoles);
+			string players = string.Empty;
+			jsonLoader.ReadValue("players", players);
+			jsonSaver.WriteValue("players", players);;
+			string roleColors = string.Empty;
+			jsonLoader.ReadValue("roleColors", roleColors);
+			jsonSaver.WriteValue("roleColors", roleColors);
 			jsonSaver.WriteValue("roles", roles);
 		}
 		else
@@ -85,7 +80,8 @@ modded class flabby_staff_chat_roles_configuration
 			// Update on clients
 			array<string> players = new array<string>();
 			jsonLoader.ReadValue("players", players);
-			requestPrefixUpdates(players);
+			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+			gm.updateVariables();
 		}
 		else
 		{
@@ -118,7 +114,8 @@ modded class flabby_staff_chat_roles_configuration
 			jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
-			requestPrefixUpdates(players);
+			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+			gm.updateVariables();
 		}
 		else
 		{
@@ -186,6 +183,7 @@ modded class flabby_staff_chat_roles_configuration
 				jsonSaver.WriteValue(playerBiUid, playerJsonWrite.ExportToString());
 			}
 			
+			
 			// Save file 
 			jsonSaver.WriteValue("players", players);
 			jsonSaver.WriteValue("roles", roles);
@@ -195,7 +193,8 @@ modded class flabby_staff_chat_roles_configuration
 			jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
-			requestPrefixUpdates(players);
+			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+			gm.updateVariables();
 			
 		}
 		// No file so nothing to edit :D 
@@ -243,7 +242,7 @@ modded class flabby_staff_chat_roles_configuration
 	}
 	
 	// Get all roles
-	static ref array<ref array<string>> getAllPrefixeWithColor()
+	static ref array<ref flabby_Role> getAllPrefixsWithColor()
 	{
 		// Check if file is made
 		bool isFile = FileIO.FileExists(persistedFileLocation);
@@ -257,22 +256,19 @@ modded class flabby_staff_chat_roles_configuration
 			jsonLoader.ReadValue("roles", roles);
 			
 			// Return map
-			ref array<ref array<string>> RETURNING = new array<ref array<string>>();
-			ref array<string> KEYS = new array<string>();
-			ref array<string> VALUES = new array<string>();
+			ref array<ref flabby_Role> RETURNING = new array<ref flabby_Role>();
 			foreach (string role : roles)
 			{
-				ref array<string> values = new array<string>();
-				KEYS.Insert(role);
-				VALUES.Insert(getPrefixColor(role));
+				ref flabby_Role roleWithColor = new flabby_Role();
+				roleWithColor.color = getPrefixColor(role);
+				roleWithColor.role = role;
+				RETURNING.Insert(roleWithColor);
 			}
-			RETURNING.Insert(KEYS);
-			RETURNING.Insert(VALUES);
 			return RETURNING;
 		}
 		else
 		{
-			return new array<ref array<string>>();
+			return new array<ref flabby_Role>();
 		}
 	}
 }

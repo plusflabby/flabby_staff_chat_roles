@@ -66,7 +66,8 @@ modded class flabby_staff_chat_roles_configuration
 			// Update on client
 			array<string> playerToUpdate = new array<string>();
 			playerToUpdate.Insert(playerIdentifier);
-			flabby_staff_chat_roles_configuration.requestPrefixUpdates(playerToUpdate); 
+			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+			gm.updateVariables();
 			
 			return string.Format("Success, added %1 role to player %2.", playerIdentifier, roleName);
 		}
@@ -145,7 +146,8 @@ modded class flabby_staff_chat_roles_configuration
 			// Update on client
 			array<string> playerToUpdate = new array<string>();
 			playerToUpdate.Insert(playerIdentifier);
-			flabby_staff_chat_roles_configuration.requestPrefixUpdates(playerToUpdate);
+			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+			gm.updateVariables();
 			
 			return string.Format("Success, removed %1 from configuration.", playerIdentifier);
 		}
@@ -190,11 +192,42 @@ modded class flabby_staff_chat_roles_configuration
 			jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
-			flabby_staff_chat_roles_configuration.requestPrefixUpdates(playersToUpdate);
+			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+			gm.updateVariables();
 		}
 		else
 		{
 			// No file so nothing to clear :D
+		}
+	}
+	
+	static ref array<ref flabby_Player> getAllPlayersWithRoles()
+	{
+		// Check if file is made
+		bool isFile = FileIO.FileExists(persistedFileLocation);
+		if (isFile)
+		{
+			// Open file
+			SCR_JsonLoadContext jsonLoader = new SCR_JsonLoadContext();
+			jsonLoader.LoadFromFile(persistedFileLocation);
+			// Get and set players
+			array<string> players = new array<string>();
+			jsonLoader.ReadValue("players", players);
+			
+			// Return map
+			ref array<ref flabby_Player> RETURNING = new array<ref flabby_Player>();
+			foreach (string playerBiUid : players)
+			{
+				ref flabby_Player player = new flabby_Player();
+				player.uid = playerBiUid;
+				player.role = flabby_staff_chat_roles_configuration.getPlayerPrefix(playerBiUid);
+				RETURNING.Insert(player);
+			}
+			return RETURNING;
+		}
+		else
+		{
+			return new array<ref flabby_Player>();
 		}
 	}
 }

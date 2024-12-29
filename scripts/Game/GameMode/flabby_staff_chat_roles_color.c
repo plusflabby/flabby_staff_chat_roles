@@ -31,7 +31,7 @@ modded class flabby_staff_chat_roles_configuration
 			
 			SCR_JsonSaveContext jsonToBeSaveToFile = new SCR_JsonSaveContext();
 			
-			// Save players with role
+			// Save players with roleColors
 			foreach (string playerBiUid : players)
 			{
 				string playerJsonString = string.Empty;
@@ -65,28 +65,29 @@ modded class flabby_staff_chat_roles_configuration
 			
 			foreach(string role : roles)
 			{
-				string roleColor = "0xffff0000";
-				if (roloColorsObject.ReadValue("color", roleColor))
+				string roleColorFromObj = string.Empty;
+				roloColorsObject.ReadValue(role, roleColorFromObj);	;
+				if (role == roleName)
 				{
-					if (role == roleName)
-					{
-						roleColor = colorHexCode;
-					}
+					roleColorFromObj = colorHexCode;
 				}
-				roleColorsObjectToSave.WriteValue(role, roleColor);
+				roleColorsObjectToSave.WriteValue(role, roleColorFromObj);
 			}
 			
 			// Save file 
-			string playerRoles = string.Empty;
-			jsonLoader.ReadValue("players_with_role", playerRoles);
-			jsonToBeSaveToFile.WriteValue("players_with_role", playerRoles);
-			jsonToBeSaveToFile.WriteValue("players", players);
-			jsonToBeSaveToFile.WriteValue("roles", roles);
-			jsonToBeSaveToFile.WriteValue("roleColors", roleColorsObjectToSave.ExportToString());
-			jsonToBeSaveToFile.SaveToFile(persistedFileLocation);
+			saveJSONConfigFile("roleColors", roleColorsObjectToSave.ExportToString());
+			
+//			string playerRoles = string.Empty;
+//			jsonLoader.ReadValue("players_with_role", playerRoles);
+//			jsonToBeSaveToFile.WriteValue("players_with_role", playerRoles);
+//			jsonToBeSaveToFile.WriteValue("players", players);
+//			jsonToBeSaveToFile.WriteValue("roles", roles);
+//			jsonToBeSaveToFile.WriteValue("roleColors", roleColorsObjectToSave.ExportToString());
+//			jsonToBeSaveToFile.SaveToFile(persistedFileLocation);
 			
 			// Update on clients
-			flabby_staff_chat_roles_configuration.requestPrefixUpdates(playersToUpdate);
+			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+			gm.updateVariables();
 			
 			return "Success!";
 		}
