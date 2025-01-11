@@ -2,8 +2,9 @@ modded class SCR_ChatMessageLineComponent
 {
 	override void SetMessage(notnull SCR_ChatMessage msg, SCR_ChatMessageStyle style)
 	{
+	
+	
 		super.SetMessage(msg, style);
-		
 		if (!GetGame())
 			return;
 		if (!GetGame().GetBackendApi())
@@ -11,13 +12,13 @@ modded class SCR_ChatMessageLineComponent
 		
 		SCR_ChatMessageGeneral messageGeneral = SCR_ChatMessageGeneral.Cast(msg);
 		SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
-		int senderId = messageGeneral.m_iSenderId;
 		
-		if (!messageGeneral)
+		if (!messageGeneral || !gm || !messageGeneral.m_iSenderId)
 		{
 			return;
 		}
 		
+		int senderId = messageGeneral.m_iSenderId;
 		string playerBiUid = string.Empty;
 		foreach (flabby_BIUIDs p : gm.flabby_PlayerUIDs)
 		{
@@ -75,4 +76,5 @@ modded class SCR_ChatMessageLineComponent
 			}
 		}
 	}
+	
 }
