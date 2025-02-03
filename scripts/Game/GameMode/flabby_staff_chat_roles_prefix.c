@@ -163,7 +163,7 @@ modded class flabby_staff_chat_roles_configuration
 				string playerJsonString = string.Empty;
 				jsonLoader.ReadValue(playerBiUid, playerJsonString);
 				
-				SCR_JsonLoadContext playerJsonRead = new SCR_JsonLoadContext();
+			SCR_JsonLoadContext playerJsonRead = new SCR_JsonLoadContext();
 				playerJsonRead.ImportFromString(playerJsonString);
 				
 				SCR_JsonSaveContext playerJsonWrite = new SCR_JsonSaveContext();

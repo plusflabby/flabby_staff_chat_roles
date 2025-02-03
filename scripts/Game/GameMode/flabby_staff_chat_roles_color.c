@@ -77,14 +77,6 @@ modded class flabby_staff_chat_roles_configuration
 			// Save file 
 			saveJSONConfigFile("roleColors", roleColorsObjectToSave.ExportToString());
 			
-//			string playerRoles = string.Empty;
-//			jsonLoader.ReadValue("players_with_role", playerRoles);
-//			jsonToBeSaveToFile.WriteValue("players_with_role", playerRoles);
-//			jsonToBeSaveToFile.WriteValue("players", players);
-//			jsonToBeSaveToFile.WriteValue("roles", roles);
-//			jsonToBeSaveToFile.WriteValue("roleColors", roleColorsObjectToSave.ExportToString());
-//			jsonToBeSaveToFile.SaveToFile(persistedFileLocation);
-			
 			// Update on clients
 			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
 			gm.updateVariables();

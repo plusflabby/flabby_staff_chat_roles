@@ -15,7 +15,7 @@ class flabby_staff_chat_roles_configuration
 //			if (isPlayerBiUid)
 //			{
 //				jsonSaver.WriteValue(key, value);
-//				jsonSaver.SaveToFile(persistedFileLocation);
+//				storeJsonContainer(BaseJsonSerializationSaveContainer.Cast(jsonSaver.GetContainer()));(persistedFileLocation);
 //				return true;
 //			}
 			
@@ -44,7 +44,7 @@ class flabby_staff_chat_roles_configuration
 //			if (isPlayerBiUid)
 //			{
 //				jsonSaver.WriteValue(key, value);
-//				jsonSaver.SaveToFile(persistedFileLocation);
+//				storeJsonContainer(BaseJsonSerializationSaveContainer.Cast(jsonSaver.GetContainer()));(persistedFileLocation);
 //				return true;
 //			}
 			
@@ -119,7 +119,7 @@ class flabby_staff_chat_roles_configuration
 //			if (isPlayerBiUid)
 //			{
 //				jsonSaver.WriteValue(key, value);
-//				jsonSaver.SaveToFile(persistedFileLocation);
+//				storeJsonContainer(BaseJsonSerializationSaveContainer.Cast(jsonSaver.GetContainer()));(persistedFileLocation);
 //				return true;
 //			}
 			
@@ -148,7 +148,7 @@ class flabby_staff_chat_roles_configuration
 //			if (isPlayerBiUid)
 //			{
 //				jsonSaver.WriteValue(key, value);
-//				jsonSaver.SaveToFile(persistedFileLocation);
+//				storeJsonContainer(BaseJsonSerializationSaveContainer.Cast(jsonSaver.GetContainer()));(persistedFileLocation);
 //				return true;
 //			}
 			
