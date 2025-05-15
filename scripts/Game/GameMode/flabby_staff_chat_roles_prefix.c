@@ -5,7 +5,7 @@ modded class flabby_staff_chat_roles_configuration
 	static string addRoleCategory(string roleName)
 	{
 		// For saving file
-		SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
+		//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 		// Upper case role name
 		roleName.ToUpper();
 		// Made directory incase not already there
@@ -29,24 +29,24 @@ modded class flabby_staff_chat_roles_configuration
 			roles.Insert(roleName);
 			string playerRoles = string.Empty;
 			jsonLoader.ReadValue("players_with_role", playerRoles);
-			jsonSaver.WriteValue("players_with_role", playerRoles);
+			saveJSONConfigFile("players_with_role", playerRoles);
 			string players = string.Empty;
 			jsonLoader.ReadValue("players", players);
-			jsonSaver.WriteValue("players", players);;
+			saveJSONConfigFile("players", players);
 			string roleColors = string.Empty;
 			jsonLoader.ReadValue("roleColors", roleColors);
-			jsonSaver.WriteValue("roleColors", roleColors);
-			jsonSaver.WriteValue("roles", roles);
+			saveJSONConfigFile("roleColors", roleColors);
+			saveJSONConfigFile("roles", roles);
 		}
 		else
 		{
 			array<string> roles = new array<string>();
 			roles.Insert(roleName);
-			jsonSaver.WriteValue("roles", roles);
+			saveJSONConfigFile("roles", roles);
 		}
 		
 		// Save file 
-		jsonSaver.SaveToFile(persistedFileLocation);
+		//.SaveToFile(persistedFileLocation);
 		
 		return string.Format("Success, added role %1", roleName);
 	}
@@ -70,12 +70,12 @@ modded class flabby_staff_chat_roles_configuration
 			// Add role to array 
 			roles.RemoveItem(roleName);
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
-			jsonSaver.WriteValue("roles", roles);
+			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
+			saveJSONConfigFile("roles", roles);
 			string playerRoles = string.Empty;
 			jsonLoader.ReadValue("players_with_role", playerRoles);
-			jsonSaver.WriteValue("players_with_role", playerRoles);
-			jsonSaver.SaveToFile(persistedFileLocation);
+			saveJSONConfigFile("players_with_role", playerRoles);
+			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
 			array<string> players = new array<string>();
@@ -107,11 +107,11 @@ modded class flabby_staff_chat_roles_configuration
 			SCR_JsonSaveContext players_with_role_object = new SCR_JsonSaveContext();
 			
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
-			jsonSaver.WriteValue("players", players);
-			jsonSaver.WriteValue("players_with_role", players_with_role_object.ExportToString());
-			jsonSaver.WriteValue("roles", roles);
-			jsonSaver.SaveToFile(persistedFileLocation);
+			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
+			saveJSONConfigFile("players", players);
+			saveJSONConfigFile("players_with_role", players_with_role_object.ExportToString());
+			saveJSONConfigFile("roles", roles);
+			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
 			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
@@ -152,7 +152,7 @@ modded class flabby_staff_chat_roles_configuration
 				roles.Insert(roleNameNew);
 			}
 			
-			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
+			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			
 			// Set players
 			array<string> players = new array<string>();
@@ -180,17 +180,17 @@ modded class flabby_staff_chat_roles_configuration
 					}
 				}
 				
-				jsonSaver.WriteValue(playerBiUid, playerJsonWrite.ExportToString());
+				saveJSONConfigFile(playerBiUid, playerJsonWrite.ExportToString());
 			}
 			
 			
 			// Save file 
-			jsonSaver.WriteValue("players", players);
-			jsonSaver.WriteValue("roles", roles);
+			saveJSONConfigFile("players", players);
+			saveJSONConfigFile("roles", roles);
 			string playerRoles = string.Empty;
 			jsonLoader.ReadValue("players_with_role", playerRoles);
-			jsonSaver.WriteValue("players_with_role", playerRoles);
-			jsonSaver.SaveToFile(persistedFileLocation);
+			saveJSONConfigFile("players_with_role", playerRoles);
+			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
 			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());

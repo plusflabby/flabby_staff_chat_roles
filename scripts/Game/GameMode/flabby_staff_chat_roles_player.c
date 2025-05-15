@@ -42,26 +42,26 @@ modded class flabby_staff_chat_roles_configuration
 			players.Insert(playerIdentifier);
 			
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
-			jsonSaver.WriteValue("roles", roles);
-			jsonSaver.WriteValue("players", players);
-			for (int i; i < players.Count(); i++)
-			{
-				string json = string.Empty;
-				jsonLoader.ReadValue(players.Get(i), json);
-				if (!json.IsEmpty())
-				{
-					jsonSaver.WriteValue(players.Get(i), json);
-				}
-			}
-			jsonSaver.WriteValue(playerIdentifier, jsonPlayersSaver.ExportToString());
+			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
+			saveJSONConfigFile("roles", roles);
+			saveJSONConfigFile(playerIdentifier, jsonPlayersSaver.ExportToString());
+			saveJSONConfigFile("players", players);
+//			for (int i; i < players.Count(); i++)
+//			{
+//				string json = string.Empty;
+//				jsonLoader.ReadValue(players.Get(i), json);
+//				if (!json.IsEmpty())
+//				{
+//					saveJSONConfigFile(players.Get(i), json);
+//				}
+//			}
 			string playerRoles = string.Empty;
 			jsonLoader.ReadValue("players_with_role", playerRoles);
-			jsonSaver.WriteValue("players_with_role", playerRoles);
+			saveJSONConfigFile("players_with_role", playerRoles);
 			string roleColors = string.Empty;
 			jsonLoader.ReadValue("roleColors", roleColors);
-			jsonSaver.WriteValue("roleColors", roleColors);
-			jsonSaver.SaveToFile(persistedFileLocation);
+			saveJSONConfigFile("roleColors", roleColors);
+			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on client
 			array<string> playerToUpdate = new array<string>();
@@ -112,8 +112,8 @@ modded class flabby_staff_chat_roles_configuration
 			jsonLoader.ReadValue("roles", roles);
 			
 			// Saving
-			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
-			jsonSaver.WriteValue("roles", roles);
+			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
+			saveJSONConfigFile("roles", roles);
 			// Remove role from player 
 			for (int i; i < players.Count(); i++)
 			{
@@ -127,21 +127,21 @@ modded class flabby_staff_chat_roles_configuration
 					}
 					else 
 					{
-						jsonSaver.WriteValue(players.Get(i), playerObject);
+						saveJSONConfigFile(players.Get(i), playerObject);
 					}
 				}
 			}
 			// Remove player form players array
 			players.Remove(players.Find(playerIdentifier));
-			jsonSaver.WriteValue("players", players);
+			saveJSONConfigFile("players", players);
 			string playerRoles = string.Empty;
 			jsonLoader.ReadValue("players_with_role", playerRoles);
-			jsonSaver.WriteValue("players_with_role", playerRoles);
+			saveJSONConfigFile("players_with_role", playerRoles);
 			string roleColors = string.Empty;
 			jsonLoader.ReadValue("roleColors", roleColors);
-			jsonSaver.WriteValue("roleColors", roleColors);
+			saveJSONConfigFile("roleColors", roleColors);
 			// Save to file
-			jsonSaver.SaveToFile(persistedFileLocation);
+			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on client
 			array<string> playerToUpdate = new array<string>();
@@ -180,16 +180,16 @@ modded class flabby_staff_chat_roles_configuration
 			jsonLoader.ReadValue("roles", roles);
 			
 			// Save file 
-			SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
-			jsonSaver.WriteValue("roles", roles);
-			jsonSaver.WriteValue("players", players);
+			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
+			saveJSONConfigFile("roles", roles);
+			saveJSONConfigFile("players", players);
 			string playerRoles = string.Empty;
 			jsonLoader.ReadValue("players_with_role", playerRoles);
-			jsonSaver.WriteValue("players_with_role", playerRoles);
+			saveJSONConfigFile("players_with_role", playerRoles);
 			string roleColors = string.Empty;
 			jsonLoader.ReadValue("roleColors", roleColors);
-			jsonSaver.WriteValue("roleColors", roleColors);
-			jsonSaver.SaveToFile(persistedFileLocation);
+			saveJSONConfigFile("roleColors", roleColors);
+			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
 			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());

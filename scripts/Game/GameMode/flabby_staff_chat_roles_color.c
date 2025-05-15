@@ -24,14 +24,16 @@ modded class flabby_staff_chat_roles_configuration
 				return "Role does not exist.";
 			}
 			
+			/*
 			// Set players
 			array<string> playersToUpdate = new array<string>();
 			array<string> players = new array<string>();
 			jsonLoader.ReadValue("players", players);
 			
-			SCR_JsonSaveContext jsonToBeSaveToFile = new SCR_JsonSaveContext();
+			//SCR_JsonSaveContext jsonToBeSaveToFile = new SCR_JsonSaveContext();
 			
 			// Save players with roleColors
+			
 			foreach (string playerBiUid : players)
 			{
 				string playerJsonString = string.Empty;
@@ -44,15 +46,16 @@ modded class flabby_staff_chat_roles_configuration
 				string playerRole = string.Empty;
 				if (playerJsonRead.ReadValue("role", playerRole))
 				{
-					playerJsonWrite.WriteValue("role", playerRole);
+					saveJSONConfigFile("role", playerRole);
 					if (playerRole == roleName)
 					{
 						playersToUpdate.Insert(playerBiUid);
 					}
 				}
 				
-				jsonToBeSaveToFile.WriteValue(playerBiUid, playerJsonWrite.ExportToString());
+				saveJSONConfigFile(playerBiUid, playerJsonWrite.ExportToString());
 			}
+			*/
 			
 			// Set roleColors
 			string roleColors = string.Empty;
@@ -66,7 +69,7 @@ modded class flabby_staff_chat_roles_configuration
 			foreach(string role : roles)
 			{
 				string roleColorFromObj = string.Empty;
-				roloColorsObject.ReadValue(role, roleColorFromObj);	;
+				roloColorsObject.ReadValue(role, roleColorFromObj);
 				if (role == roleName)
 				{
 					roleColorFromObj = colorHexCode;

@@ -1,218 +1,218 @@
 class flabby_staff_chat_roles_configuration
 {
+	#ifdef WORKBENCH
+	static bool config_debugging = true;
+	#else 
+	static bool config_debugging = false;
+	#endif
+	
 	//! Location of persisted file
 	protected static string persistedFileLocation = "$profile:/flabby/staff-chat-roles.json";
 	
-	static bool saveJSONConfigFile(string key, array<string> value, bool isPlayerBiUid = false)
+	static bool saveJSONConfigFile(string key, array<string> value)
 	{
+		if (config_debugging) PrintFormat("saveJSONConfigFile(string %1, array<string> %2)", key, value);
+		ContainerSerializationSaveContext writer = new ContainerSerializationSaveContext();
+		BaseJsonSerializationSaveContainer jsonContainer = new PrettyJsonSaveContainer();
+		jsonContainer.SetMaxDecimalPlaces(5);
+		writer.SetContainer(jsonContainer);
 		FileIO.MakeDirectory("$profile:/flabby");
-		
-		SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
-		
-		bool isFile = FileIO.FileExists(persistedFileLocation);
-		if (isFile == false)
+		if (!FileIO.FileExists(persistedFileLocation))
 		{
-//			if (isPlayerBiUid)
-//			{
-//				jsonSaver.WriteValue(key, value);
-//				storeJsonContainer(BaseJsonSerializationSaveContainer.Cast(jsonSaver.GetContainer()));(persistedFileLocation);
-//				return true;
-//			}
+			if (config_debugging) PrintFormat("!FileIO.FileExists(persistedFileLocation) == true");
+			bool bool1 = false;
+			bool bool2 = false;
+			bool bool3 = false;
+			bool bool4 = false;
+			switch(key)
+			{
+				case "players_with_role":
+					writer.WriteValue("players_with_role", value);
+					bool1 = true;
+					break;
+				case "players":
+					writer.WriteValue("players", value);
+					bool2 = true;
+					break;
+				case "roleColors":
+					writer.WriteValue("roleColors", value);
+					bool3 = true;
+					break;
+				case "roles":
+					writer.WriteValue("roles", value);
+					bool4 = true;
+					break;
+				default:
+					writer.WriteValue(key, value);
+					break;
+			}
 			
-			if (key == "players_with_role")
-				jsonSaver.WriteValue("players_with_role", value);
-			else
-				jsonSaver.WriteValue("players_with_role", string.Empty);
-			
-			if (key == "players")
-				jsonSaver.WriteValue("players", value);
-			else
-				jsonSaver.WriteValue("players", new array<string>());	
-			
-			if (key == "roleColors")
-				jsonSaver.WriteValue("roleColors", value);
-			else
-				jsonSaver.WriteValue("roleColors", string.Empty);
-			
-			if (key == "roles")
-				jsonSaver.WriteValue("roles", value);
-			else
-				jsonSaver.WriteValue("roles", new array<string>());
+			if (bool1 == false) writer.WriteValue("players_with_role", string.Empty);
+			if (bool2 == false) writer.WriteValue("players", string.Empty);
+			if (bool3 == false) writer.WriteValue("roleColors", string.Empty);
+			if (bool4 == false) writer.WriteValue("roles", string.Empty);
 		}
-		else 
+		else
 		{
-//			if (isPlayerBiUid)
-//			{
-//				jsonSaver.WriteValue(key, value);
-//				storeJsonContainer(BaseJsonSerializationSaveContainer.Cast(jsonSaver.GetContainer()));(persistedFileLocation);
-//				return true;
-//			}
-			
+			if (config_debugging) PrintFormat("!FileIO.FileExists(persistedFileLocation) == false");
 			SCR_JsonLoadContext jsonLoader = new SCR_JsonLoadContext();
+
 			jsonLoader.LoadFromFile(persistedFileLocation);
+					
+			array<string> players_with_role = new array<string>();
+			if (!jsonLoader.ReadValue("players_with_role", players_with_role))
+				writer.WriteValue("players_with_role", new array<string>());
+			else
+				writer.WriteValue("players_with_role", players_with_role);
 			
-			
-			if (key == "players_with_role")
-			{
-				jsonSaver.WriteValue("players_with_role", value);
+			array<string> players = new array<string>();
+			if (!jsonLoader.ReadValue("players", players))
+			{ 
+				writer.WriteValue("players", new array<string>());
 			}
 			else
 			{
-				string players_with_role = string.Empty;
-				jsonLoader.ReadValue("players_with_role", players_with_role);
-				jsonSaver.WriteValue("players_with_role", players_with_role);
-			}
-			if (key == "players")
-			{
-				jsonSaver.WriteValue("players", value);
-			}
-			{
-				array<string> players = new array<string>();
-				jsonLoader.ReadValue("players", players);
-				jsonSaver.WriteValue("players", players);
-				if (players.Count() > 0)
+				if (config_debugging) PrintFormat("array<string> players = new array<string>(); == false/else");
+				writer.WriteValue("players", players);
+				foreach (string playerBiUid : players)
 				{
-					foreach (string playerBiUid : players)
-					{
-						string playerJsonString = string.Empty;
-						jsonLoader.ReadValue(playerBiUid, playerJsonString);
-						jsonSaver.WriteValue(playerBiUid, playerJsonString);
-					}
+					string playerJsonString = string.Empty;
+					if (jsonLoader.ReadValue(playerBiUid, playerJsonString))
+						writer.WriteValue(playerBiUid, playerJsonString);
 				}
 			}
-			if (key == "roleColors")
-			{
-				jsonSaver.WriteValue("roleColors", value);
-			}
+			
+			string roleColors = string.Empty;
+			if (!jsonLoader.ReadValue("roleColors", roleColors))
+				writer.WriteValue("roleColors", string.Empty);
 			else
-			{
-				string roleColors = string.Empty;
-				jsonLoader.ReadValue("roleColors", roleColors);
-				jsonSaver.WriteValue("roleColors", roleColors);
-			}
-			if (key == "roles")
-			{
-				jsonSaver.WriteValue("roles", value);
-			}
+				writer.WriteValue("roleColors", roleColors);
+			
+			array<string> roles = new array<string>();
+			if (!jsonLoader.ReadValue("roles", roles))
+				writer.WriteValue("roles", string.Empty);
 			else
+				writer.WriteValue("roles", roles);
+			
+			if (
+				!jsonLoader.ReadValue("roles", void)
+				&&
+				!jsonLoader.ReadValue("roleColors", void)
+				&&
+				!jsonLoader.ReadValue("players", void)
+				&&
+				!jsonLoader.ReadValue("players_with_role", void)
+			)
 			{
-				array<string> roles = new array<string>();
-				jsonLoader.ReadValue("roles", roles);
-				jsonSaver.WriteValue("roles", roles);
+				if (config_debugging) PrintFormat("writer.WriteValue(key, value);");
+				writer.WriteValue(key, value);
 			}
 		}
 		
-		jsonSaver.SaveToFile(persistedFileLocation);
-		
-		return true;
+		return jsonContainer.SaveToFile(persistedFileLocation);
 	}
-	// Save json file 
-	static bool saveJSONConfigFile(string key, string value, bool isPlayerBiUid = false)
+	
+	static bool saveJSONConfigFile(string key, string value)
 	{
+		if (config_debugging) PrintFormat("saveJSONConfigFile(string %1, string %2)", key, value);
+		ContainerSerializationSaveContext writer();
+		BaseJsonSerializationSaveContainer jsonContainer = new PrettyJsonSaveContainer();
+		jsonContainer.SetMaxDecimalPlaces(5);
+		writer.SetContainer(jsonContainer);
 		FileIO.MakeDirectory("$profile:/flabby");
-		
-		SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
-		
-		bool isFile = FileIO.FileExists(persistedFileLocation);
-		if (isFile == false)
+		if (!FileIO.FileExists(persistedFileLocation))
 		{
-//			if (isPlayerBiUid)
-//			{
-//				jsonSaver.WriteValue(key, value);
-//				storeJsonContainer(BaseJsonSerializationSaveContainer.Cast(jsonSaver.GetContainer()));(persistedFileLocation);
-//				return true;
-//			}
+			if (config_debugging) PrintFormat("!FileIO.FileExists(persistedFileLocation) == true");
+			bool bool1 = false;
+			bool bool2 = false;
+			bool bool3 = false;
+			bool bool4 = false;
+			switch(key)
+			{
+				case "players_with_role":
+					writer.WriteValue("players_with_role", value);
+					bool1 = true;
+					break;
+				case "players":
+					writer.WriteValue("players", value);
+					bool2 = true;
+					break;
+				case "roleColors":
+					writer.WriteValue("roleColors", value);
+					bool3 = true;
+					break;
+				case "roles":
+					writer.WriteValue("roles", value);
+					bool4 = true;
+					break;
+				default:
+					writer.WriteValue(key, value);
+					break;
+			}
 			
-			if (key == "players_with_role")
-				jsonSaver.WriteValue("players_with_role", value);
-			else
-				jsonSaver.WriteValue("players_with_role", string.Empty);
-			
-			if (key == "players")
-				jsonSaver.WriteValue("players", value);
-			else
-				jsonSaver.WriteValue("players", new array<string>());	
-			
-			if (key == "roleColors")
-				jsonSaver.WriteValue("roleColors", value);
-			else
-				jsonSaver.WriteValue("roleColors", string.Empty);
-			
-			if (key == "roles")
-				jsonSaver.WriteValue("roles", value);
-			else
-				jsonSaver.WriteValue("roles", new array<string>());
+			if (bool1 == false) writer.WriteValue("players_with_role", string.Empty);
+			if (bool2 == false) writer.WriteValue("players", string.Empty);
+			if (bool3 == false) writer.WriteValue("roleColors", string.Empty);
+			if (bool4 == false) writer.WriteValue("roles", string.Empty);
 		}
-		else 
+		else
 		{
-//			if (isPlayerBiUid)
-//			{
-//				jsonSaver.WriteValue(key, value);
-//				storeJsonContainer(BaseJsonSerializationSaveContainer.Cast(jsonSaver.GetContainer()));(persistedFileLocation);
-//				return true;
-//			}
-			
+			if (config_debugging) PrintFormat("FileIO.MakeDirectory() == false");
 			SCR_JsonLoadContext jsonLoader = new SCR_JsonLoadContext();
+
 			jsonLoader.LoadFromFile(persistedFileLocation);
 			
+			if (config_debugging) PrintFormat("writer.WriteValue(key, value);");
+			writer.WriteValue(key, value);
+					
+			if (key != "players_with_role")
+			{
+				array<string> players_with_role = new array<string>();
+				if (!jsonLoader.ReadValue("players_with_role", players_with_role))
+					writer.WriteValue("players_with_role", new array<string>());
+				else
+					writer.WriteValue("players_with_role", players_with_role);
+			}
 			
-			if (key == "players_with_role")
-			{
-				jsonSaver.WriteValue("players_with_role", value);
-			}
-			else
-			{
-				string players_with_role = string.Empty;
-				jsonLoader.ReadValue("players_with_role", players_with_role);
-				jsonSaver.WriteValue("players_with_role", players_with_role);
-			}
-			if (key == "players")
-			{
-				jsonSaver.WriteValue("players", value);
-			}
-			else
+			if (key != "players")
 			{
 				array<string> players = new array<string>();
-				jsonLoader.ReadValue("players", players);
-				jsonSaver.WriteValue("players", players);
-				if (players.Count() > 0)
+				if (!jsonLoader.ReadValue("players", players))
+				{ 
+					writer.WriteValue("players", string.Empty);
+				}
+				else
 				{
+					if (config_debugging) PrintFormat("array<string> players = new array<string>(); == false/else");
+					writer.WriteValue("players", players);
 					foreach (string playerBiUid : players)
 					{
 						string playerJsonString = string.Empty;
-						jsonLoader.ReadValue(playerBiUid, playerJsonString);
-						jsonSaver.WriteValue(playerBiUid, playerJsonString);
+						if (jsonLoader.ReadValue(playerBiUid, playerJsonString))
+							writer.WriteValue(playerBiUid, playerJsonString);
 					}
 				}
 			}
-			if (key == "roleColors")
-			{
-				jsonSaver.WriteValue("roleColors", value);
-			}
-			else
+			
+			if (key != "roleColors")
 			{
 				string roleColors = string.Empty;
-				jsonLoader.ReadValue("roleColors", roleColors);
-				jsonSaver.WriteValue("roleColors", roleColors);
+				if (!jsonLoader.ReadValue("roleColors", roleColors))
+					writer.WriteValue("roleColors", string.Empty);
+				else
+					writer.WriteValue("roleColors", roleColors);
 			}
-			if (key == "roles")
-			{
-				jsonSaver.WriteValue("roles", value);
-			}
-			else
+			
+			if (key != "roles")
 			{
 				array<string> roles = new array<string>();
-				jsonLoader.ReadValue("roles", roles);
-				jsonSaver.WriteValue("roles", roles);
+				if (!jsonLoader.ReadValue("roles", roles))
+					writer.WriteValue("roles", new array<string>());
+				else
+					writer.WriteValue("roles", roles);
 			}
-			
-			// All players bi uid as keys have to be added 
-			// Save players with roleColors
-			
 		}
 		
-		jsonSaver.SaveToFile(persistedFileLocation);
-		
-		return true;
+		return jsonContainer.SaveToFile(persistedFileLocation);
 	}
 }
