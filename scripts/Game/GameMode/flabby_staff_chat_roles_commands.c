@@ -19,7 +19,7 @@ class flabby_staff_chat_roles_commands : ScrServerCommand
 	//-----------------------------------------------------------------------------
 	override int RequiredRCONPermission()
 	{
-		return ERCONPermissions.PERMISSIONS_NONE;
+		return ERCONPermissions.PERMISSIONS_ADMIN;
 	}
 	
 	// Set requirement to be logged in administrator for chat command
@@ -32,6 +32,33 @@ class flabby_staff_chat_roles_commands : ScrServerCommand
 	// Handle Chat command on server
 	//-----------------------------------------------------------------------------
 	override ref ScrServerCmdResult OnChatServerExecution(array<string> argv, int playerId)
+	{
+		return ExecuteCMD(argv);
+	}
+	
+	// Handle Chat command on client
+	//-----------------------------------------------------------------------------
+	override ref ScrServerCmdResult OnChatClientExecution(array<string> argv, int playerId)
+	{
+		return ScrServerCmdResult(string.Empty, EServerCmdResultType.OK);
+	}
+	
+	// Handle RCON command on server
+	//-----------------------------------------------------------------------------
+	override ref ScrServerCmdResult OnRCONExecution(array<string> argv)
+	{
+		return ExecuteCMD(argv);
+	}
+	
+	// Handle Pending command
+	//-----------------------------------------------------------------------------
+	override ref ScrServerCmdResult OnUpdate()
+	{
+		return ScrServerCmdResult(string.Empty, EServerCmdResultType.OK);
+	}
+	
+	// Execute command
+	private ScrServerCmdResult ExecuteCMD(array<string> argv)
 	{
 		if (argv.Count() > 1)
 		{
@@ -89,28 +116,7 @@ class flabby_staff_chat_roles_commands : ScrServerCommand
 			}
 		}
 		
-		return ScrServerCmdResult(string.Empty, EServerCmdResultType.PARAMETERS);
-	}
-	
-	// Handle Chat command on client
-	//-----------------------------------------------------------------------------
-	override ref ScrServerCmdResult OnChatClientExecution(array<string> argv, int playerId)
-	{
-		return ScrServerCmdResult(string.Empty, EServerCmdResultType.OK);
-	}
-	
-	// Handle RCON command on server
-	//-----------------------------------------------------------------------------
-	override ref ScrServerCmdResult OnRCONExecution(array<string> argv)
-	{
-		return ScrServerCmdResult(string.Empty, EServerCmdResultType.OK);
-	}
-	
-	// Handle Pending command
-	//-----------------------------------------------------------------------------
-	override ref ScrServerCmdResult OnUpdate()
-	{
-		return ScrServerCmdResult(string.Empty, EServerCmdResultType.OK);
+		return ScrServerCmdResult("Error among parameters", EServerCmdResultType.PARAMETERS);
 	}
 
 }

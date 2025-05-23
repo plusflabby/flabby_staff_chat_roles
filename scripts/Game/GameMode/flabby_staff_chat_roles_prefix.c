@@ -27,9 +27,6 @@ modded class flabby_staff_chat_roles_configuration
 			}
 			// Add role to array 
 			roles.Insert(roleName);
-			string playerRoles = string.Empty;
-			jsonLoader.ReadValue("players_with_role", playerRoles);
-			saveJSONConfigFile("players_with_role", playerRoles);
 			string players = string.Empty;
 			jsonLoader.ReadValue("players", players);
 			saveJSONConfigFile("players", players);
@@ -67,19 +64,65 @@ modded class flabby_staff_chat_roles_configuration
 			// Get and set roles
 			array<string> roles = new array<string>();
 			jsonLoader.ReadValue("roles", roles);
+			array<string> rolesCopy = new array<string>();
+			rolesCopy.InsertAll(roles);
 			// Add role to array 
 			roles.RemoveItem(roleName);
 			// Save file 
-			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			saveJSONConfigFile("roles", roles);
-			string playerRoles = string.Empty;
-			jsonLoader.ReadValue("players_with_role", playerRoles);
-			saveJSONConfigFile("players_with_role", playerRoles);
-			//jsonSaver.SaveToFile(persistedFileLocation);
-		
-			// Update on clients
+			
+			// Remove role from players
 			array<string> players = new array<string>();
 			jsonLoader.ReadValue("players", players);
+			if (players.Count() > 0)
+			{
+				foreach (string playerBiUid : players)
+				{
+					string playerJsonString = string.Empty;
+					jsonLoader.ReadValue(playerBiUid, playerJsonString);
+					
+					SCR_JsonLoadContext playerJsonRead = new SCR_JsonLoadContext();
+					playerJsonRead.ImportFromString(playerJsonString);
+					
+					SCR_JsonSaveContext playerJsonWrite = new SCR_JsonSaveContext();
+					string playerRole = string.Empty;
+					if (playerJsonRead.ReadValue("role", playerRole))
+					{
+						if (playerRole != roleName)
+						{
+							playerJsonWrite.WriteValue("role", playerRole);
+							saveJSONConfigFile(playerBiUid, playerJsonWrite.ExportToString());
+						}
+					}
+					
+				}
+			}
+			
+			// Remove role from roleColor
+			string roleColors = string.Empty;
+			SCR_JsonLoadContext roleJsonLoader = new SCR_JsonLoadContext();
+			SCR_JsonLoadContext roleColorsJson = new SCR_JsonLoadContext();
+			roleJsonLoader.LoadFromFile(persistedFileLocation);
+			roleJsonLoader.ReadValue("roleColors", roleColors);
+			if (roleColors.IsEmpty() == false)
+			{
+				roleColorsJson.ImportFromString(roleColors);
+				SCR_JsonSaveContext rolesJsonWrite = new SCR_JsonSaveContext();
+				
+				foreach (string role : rolesCopy)
+				{
+					string roleColor = string.Empty;
+					roleColorsJson.ReadValue(role, roleColor);
+					if (role != roleName)
+					{
+						rolesJsonWrite.WriteValue(role, roleColor);
+					}
+				}
+				saveJSONConfigFile("roleColors", rolesJsonWrite.ExportToString());
+			}
+			
+		
+			// Update on clients
 			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
 			gm.updateVariables();
 		}
@@ -103,13 +146,9 @@ modded class flabby_staff_chat_roles_configuration
 			// Set players
 			array<string> players = new array<string>();
 			
-			// Set players_with_role
-			SCR_JsonSaveContext players_with_role_object = new SCR_JsonSaveContext();
-			
 			// Save file 
 			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			saveJSONConfigFile("players", players);
-			saveJSONConfigFile("players_with_role", players_with_role_object.ExportToString());
 			saveJSONConfigFile("roles", roles);
 			//jsonSaver.SaveToFile(persistedFileLocation);
 		
@@ -143,6 +182,8 @@ modded class flabby_staff_chat_roles_configuration
 			// Get and set roles
 			array<string> roles = new array<string>();
 			jsonLoader.ReadValue("roles", roles);
+			array<string> rolesCopy = new array<string>();
+			rolesCopy.InsertAll(roles);
 			
 			// Update role in role array
 			if (roles.Contains(roleName))
@@ -157,39 +198,63 @@ modded class flabby_staff_chat_roles_configuration
 			// Set players
 			array<string> players = new array<string>();
 			jsonLoader.ReadValue("players", players);
-			
-			foreach (string playerBiUid : players)
+			if (players.Count() > 0)
 			{
-				string playerJsonString = string.Empty;
-				jsonLoader.ReadValue(playerBiUid, playerJsonString);
-				
-			SCR_JsonLoadContext playerJsonRead = new SCR_JsonLoadContext();
-				playerJsonRead.ImportFromString(playerJsonString);
-				
-				SCR_JsonSaveContext playerJsonWrite = new SCR_JsonSaveContext();
-				string playerRole = string.Empty;
-				if (playerJsonRead.ReadValue("role", playerRole))
+				foreach (string playerBiUid : players)
 				{
-					if (playerRole == roleName)
+					string playerJsonString = string.Empty;
+					jsonLoader.ReadValue(playerBiUid, playerJsonString);
+					
+					SCR_JsonLoadContext playerJsonRead = new SCR_JsonLoadContext();
+					playerJsonRead.ImportFromString(playerJsonString);
+					
+					SCR_JsonSaveContext playerJsonWrite = new SCR_JsonSaveContext();
+					string playerRole = string.Empty;
+					if (playerJsonRead.ReadValue("role", playerRole))
 					{
-						playerJsonWrite.WriteValue("role", roleNameNew);
+						if (playerRole == roleName)
+						{
+							playerJsonWrite.WriteValue("role", roleNameNew);
+						}
+						else 
+						{
+							playerJsonWrite.WriteValue("role", playerRole);
+						}
 					}
-					else 
-					{
-						playerJsonWrite.WriteValue("role", playerRole);
-					}
+					
+					saveJSONConfigFile(playerBiUid, playerJsonWrite.ExportToString());
 				}
-				
-				saveJSONConfigFile(playerBiUid, playerJsonWrite.ExportToString());
 			}
 			
+			// Get role colors
+			string roleColors = string.Empty;
+			SCR_JsonLoadContext roleJsonLoader = new SCR_JsonLoadContext();
+			SCR_JsonLoadContext roleColorsJson = new SCR_JsonLoadContext();
+			roleJsonLoader.LoadFromFile(persistedFileLocation);
+			roleJsonLoader.ReadValue("roleColors", roleColors);
+			if (roleColors.IsEmpty() == false)
+			{
+				roleColorsJson.ImportFromString(roleColors);
+				SCR_JsonSaveContext rolesJsonWrite = new SCR_JsonSaveContext();
+				
+				foreach (string role : rolesCopy)
+				{
+					string roleColor = string.Empty;
+					roleColorsJson.ReadValue(role, roleColor);
+					if (role == roleName)
+					{
+						rolesJsonWrite.WriteValue(roleNameNew, roleColor);
+					}
+					else
+					{
+						rolesJsonWrite.WriteValue(role, roleColor);
+					}
+				}
+				saveJSONConfigFile("roleColors", rolesJsonWrite.ExportToString());
+			}
 			
 			// Save file 
-			saveJSONConfigFile("players", players);
 			saveJSONConfigFile("roles", roles);
-			string playerRoles = string.Empty;
-			jsonLoader.ReadValue("players_with_role", playerRoles);
-			saveJSONConfigFile("players_with_role", playerRoles);
 			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
@@ -217,7 +282,6 @@ modded class flabby_staff_chat_roles_configuration
 			
 			if (players.Contains(playerBohemiaIdentifier))
 			{
-				// Set players_with_role_string
 				string playerString = string.Empty;
 				jsonLoader.ReadValue(playerBohemiaIdentifier, playerString);
 				

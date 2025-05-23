@@ -24,39 +24,6 @@ modded class flabby_staff_chat_roles_configuration
 				return "Role does not exist.";
 			}
 			
-			/*
-			// Set players
-			array<string> playersToUpdate = new array<string>();
-			array<string> players = new array<string>();
-			jsonLoader.ReadValue("players", players);
-			
-			//SCR_JsonSaveContext jsonToBeSaveToFile = new SCR_JsonSaveContext();
-			
-			// Save players with roleColors
-			
-			foreach (string playerBiUid : players)
-			{
-				string playerJsonString = string.Empty;
-				jsonLoader.ReadValue(playerBiUid, playerJsonString);
-				
-				SCR_JsonLoadContext playerJsonRead = new SCR_JsonLoadContext();
-				playerJsonRead.ImportFromString(playerJsonString);
-				
-				SCR_JsonSaveContext playerJsonWrite = new SCR_JsonSaveContext();
-				string playerRole = string.Empty;
-				if (playerJsonRead.ReadValue("role", playerRole))
-				{
-					saveJSONConfigFile("role", playerRole);
-					if (playerRole == roleName)
-					{
-						playersToUpdate.Insert(playerBiUid);
-					}
-				}
-				
-				saveJSONConfigFile(playerBiUid, playerJsonWrite.ExportToString());
-			}
-			*/
-			
 			// Set roleColors
 			string roleColors = string.Empty;
 			jsonLoader.ReadValue("roleColors", roleColors);
