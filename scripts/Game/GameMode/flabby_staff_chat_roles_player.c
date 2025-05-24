@@ -104,11 +104,6 @@ modded class flabby_staff_chat_roles_configuration
 				return "No player exists with this identifier in configuration.";
 			}
 			
-			// Get and set roles
-			array<string> roles = new array<string>();
-			jsonLoader.ReadValue("roles", roles);
-			saveJSONConfigFile("roles", roles);
-			
 			// Remove role from player
 			players.Remove(players.Find(playerIdentifier));
 			saveJSONConfigFile("players", players);
@@ -118,11 +113,6 @@ modded class flabby_staff_chat_roles_configuration
 				jsonLoader.ReadValue(players.Get(i), playerObject);
 				saveJSONConfigFile(players.Get(i), playerObject);
 			}
-			string roleColors = string.Empty;
-			jsonLoader.ReadValue("roleColors", roleColors);
-			saveJSONConfigFile("roleColors", roleColors);
-			// Save to file
-			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on client
 			array<string> playerToUpdate = new array<string>();
@@ -161,13 +151,11 @@ modded class flabby_staff_chat_roles_configuration
 			jsonLoader.ReadValue("roles", roles);
 			
 			// Save file 
-			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			saveJSONConfigFile("roles", roles);
 			saveJSONConfigFile("players", players);
 			string roleColors = string.Empty;
 			jsonLoader.ReadValue("roleColors", roleColors);
 			saveJSONConfigFile("roleColors", roleColors);
-			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
 			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());

@@ -27,12 +27,6 @@ modded class flabby_staff_chat_roles_configuration
 			}
 			// Add role to array 
 			roles.Insert(roleName);
-			string players = string.Empty;
-			jsonLoader.ReadValue("players", players);
-			saveJSONConfigFile("players", players);
-			string roleColors = string.Empty;
-			jsonLoader.ReadValue("roleColors", roleColors);
-			saveJSONConfigFile("roleColors", roleColors);
 			saveJSONConfigFile("roles", roles);
 		}
 		else
@@ -84,18 +78,14 @@ modded class flabby_staff_chat_roles_configuration
 					SCR_JsonLoadContext playerJsonRead = new SCR_JsonLoadContext();
 					playerJsonRead.ImportFromString(playerJsonString);
 					
-					SCR_JsonSaveContext playerJsonWrite = new SCR_JsonSaveContext();
 					string playerRole = string.Empty;
-					if (playerJsonRead.ReadValue("role", playerRole))
+					playerJsonRead.ReadValue("role", playerRole);
+					if (playerRole == roleName)
 					{
-						if (playerRole != roleName)
-						{
-							playerJsonWrite.WriteValue("role", playerRole);
-							saveJSONConfigFile(playerBiUid, playerJsonWrite.ExportToString());
-						}
+						players.RemoveItem(playerBiUid);
 					}
-					
 				}
+				saveJSONConfigFile("players", players);
 			}
 			
 			// Remove role from roleColor
