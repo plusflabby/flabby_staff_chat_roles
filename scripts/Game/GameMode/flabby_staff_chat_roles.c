@@ -2,12 +2,8 @@ modded class SCR_ChatMessageLineComponent
 {
 	override void SetMessage(notnull SCR_ChatMessage msg, SCR_ChatMessageStyle style)
 	{
-	
-	
 		super.SetMessage(msg, style);
 		if (!GetGame())
-			return;
-		if (!GetGame().GetBackendApi())
 			return;
 		
 		SCR_ChatMessageGeneral messageGeneral = SCR_ChatMessageGeneral.Cast(msg);

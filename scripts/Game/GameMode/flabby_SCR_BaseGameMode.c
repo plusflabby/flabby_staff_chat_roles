@@ -7,7 +7,6 @@ modded class SCR_BaseGameMode
 	[RplProp()]
 	ref array<ref flabby_BIUIDs> flabby_PlayerUIDs = new array<ref flabby_BIUIDs>();
 	
-	
 	override void EOnInit(IEntity owner)
 	{
 		super.EOnInit(owner);

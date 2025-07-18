@@ -1,6 +1,5 @@
 modded class flabby_staff_chat_roles_configuration
 {
-	
 	//! Add a new role
 	static string addRoleCategory(string roleName)
 	{
@@ -136,10 +135,14 @@ modded class flabby_staff_chat_roles_configuration
 			// Set players
 			array<string> players = new array<string>();
 			
+			// Set role colors
+			string roleColors = string.Empty;
+			
 			// Save file 
 			//SCR_JsonSaveContext jsonSaver = new SCR_JsonSaveContext();
 			saveJSONConfigFile("players", players);
 			saveJSONConfigFile("roles", roles);
+			saveJSONConfigFile("roleColors", roleColors);
 			//jsonSaver.SaveToFile(persistedFileLocation);
 		
 			// Update on clients
