@@ -11,16 +11,12 @@ modded class SCR_BaseGameMode
 	{
 		super.EOnInit(owner);
 		
+		if (Replication.IsClient()) return;
+		
 		updateVariables(); 	
 		setflabby_PlayerUIDs();
 		m_OnPlayerAuditSuccess.Insert(updateflabby_PlayerUIDs_connected);
 		m_OnPlayerDisconnected.Insert(updateflabby_PlayerUIDs_disconnected);
-	}
-	
-	override void OnPlayerConnected(int playerId)
-	{
-		updateflabby_PlayerUIDs_connected(playerId);
-		super.OnPlayerConnected(playerId);
 	}
 	
 	void updateVariables()
@@ -60,9 +56,9 @@ modded class SCR_BaseGameMode
 		if (flabby_PlayerUIDs.Find(playerBiUID) == -1)
 		{
 			flabby_PlayerUIDs.Insert(playerBiUID);
+			flabby_PlayerUIDs.Sort();
+			Replication.BumpMe();
 		}
-		flabby_PlayerUIDs.Sort();
-		Replication.BumpMe();
 	}
 	void setflabby_PlayerUIDs()
 	{
