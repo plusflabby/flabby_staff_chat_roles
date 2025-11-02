@@ -1,6 +1,6 @@
 modded class SCR_ChatMessageLineComponent
 {
-	override void SetMessage(notnull SCR_ChatMessage msg, SCR_ChatMessageStyle style)
+	override void SetMessage(notnull SCR_ChatMessage msg, notnull SCR_ChatMessageStyle style)
 	{
 		super.SetMessage(msg, style);
 		if (!GetGame())

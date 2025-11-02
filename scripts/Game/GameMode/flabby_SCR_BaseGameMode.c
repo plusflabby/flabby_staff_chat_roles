@@ -28,7 +28,7 @@ modded class SCR_BaseGameMode
 	
 	void updateflabby_PlayerUIDs_disconnected(int playerId, KickCauseCode cause = KickCauseCode.NONE, int timeout = -1)
 	{
-		string playerBiUIDstr = GetGame().GetBackendApi().GetPlayerIdentityId(playerId);
+		string playerBiUIDstr = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 		if (playerBiUIDstr.IsEmpty()) return;
 		ref flabby_BIUIDs playerBiUID = new flabby_BIUIDs();
 		playerBiUID.id = playerId.ToString();
@@ -48,7 +48,7 @@ modded class SCR_BaseGameMode
 	}
 	void updateflabby_PlayerUIDs_connected(int playerId)
 	{
-		string playerBiUIDstr = GetGame().GetBackendApi().GetPlayerIdentityId(playerId);
+		string playerBiUIDstr = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 		if (playerBiUIDstr.IsEmpty()) return;
 		ref flabby_BIUIDs playerBiUID = new flabby_BIUIDs();
 		playerBiUID.id = playerId.ToString();
@@ -72,7 +72,7 @@ modded class SCR_BaseGameMode
 			ref flabby_BIUIDs playerBiUID = new flabby_BIUIDs();
 			playerBiUID.id = id.ToString();
 			
-			string playerBiUIDstr = GetGame().GetBackendApi().GetPlayerIdentityId(id);
+			string playerBiUIDstr = SCR_PlayerIdentityUtils.GetPlayerIdentityId(id);
 			if (playerBiUIDstr.IsEmpty()) return;
 			playerBiUID.biuid = playerBiUIDstr;
 			if (flabby_PlayerUIDs.Find(playerBiUID) == -1)

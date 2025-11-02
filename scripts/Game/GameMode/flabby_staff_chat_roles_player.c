@@ -106,17 +106,15 @@ modded class flabby_staff_chat_roles_configuration
 			
 			// Remove role from player
 			players.Remove(players.Find(playerIdentifier));
-			saveJSONConfigFile("players", players);
 			for (int i; i < players.Count(); i++)
 			{
 				string playerObject = string.Empty;
 				jsonLoader.ReadValue(players.Get(i), playerObject);
 				saveJSONConfigFile(players.Get(i), playerObject);
 			}
+			saveJSONConfigFile("players", players);
 		
 			// Update on client
-			array<string> playerToUpdate = new array<string>();
-			playerToUpdate.Insert(playerIdentifier);
 			SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
 			gm.updateVariables();
 			
