@@ -8,24 +8,30 @@
 
 Support: https://flabby.dev/discord
 
-Command for help: #chatroles help
-
 Commands require you to #login as admin.
 
-Commands List:
-- #cr add player [Bohemia-Identifier] [Role-Name]
-- #cr remove player [Bohemia-Identifier]
-- #cr clear players
-- #cr add role [Role-Name]
-- #cr remove role [Role-Name]
-- #cr clear roles
-- #cr edit name [Role-Name] [New-Role-Name]
-- #cr edit color [Role-Name] [Blue/Green/Red/Orange/Yellow/Black/White]
+# Commands List:
+## Add role to player
+`#cr player add [Role-Name] [Bohemia-Identifier]`
+## Remove role from player
+`#cr player remove [Role-Name] [Bohemia-Identifier]`
+## Remove roles from all players
+`#cr player clearall`
+## Add new role
+`#cr role add [Role-Name]`
+## Remove role
+`#cr role remove [Role-Name]`
+## Remove all roles in config and on players
+`#cr role clearall`
+## Edit role to a new name
+`#cr role edit name [Role-Name] [New-Role-Name]`
+## Edit role message color
+`#cr role edit color [Role-Name] [Blue/Green/Red/Orange/Yellow/Black/White]`
 
-Examples: 
-- #cr add role MOD
-- #cr edit name MOD ADMIN
-- #cr edit color ADMIN blue
-- #cr add player c68a383e-209a-4e78-b61e-ff36cf338235 ADMIN
+# Examples: 
+- #cr role add MOD
+- #cr role edit name MOD ADMIN
+- #cr role edit color ADMIN blue
+- #cr player add ADMIN c68a383e-209a-4e78-b61e-ff36cf338235
 
 ## Arma Public License Share Alike (APL-SA) [(LINK)](https://www.bohemia.net/community/licenses/arma-public-license-share-alike)
