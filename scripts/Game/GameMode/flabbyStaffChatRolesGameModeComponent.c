@@ -105,8 +105,12 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 			{
 				array<string> roleColors = new array<string>();
 				role.m_sColor.Split(" ", roleColors, false);
-				if (roleColors.Count() == 4)
-					roleColor = new Color(roleColors.Get(0).ToInt(), roleColors.Get(1).ToInt(), roleColors.Get(2).ToInt(), roleColors.Get(3).ToInt());
+				roleColors.Debug();
+				if (roleColors.Count() > 0)
+				{
+					roleColor = new Color();
+					roleColor = roleColor.FromRGBA(roleColors.Get(0).ToInt(), roleColors.Get(1).ToInt(), roleColors.Get(2).ToInt(), roleColors.Get(3).ToInt());
+				}
 				break;
 			}
 		}
