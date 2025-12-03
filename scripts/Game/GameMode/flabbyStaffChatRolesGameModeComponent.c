@@ -95,15 +95,18 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 		return rolesForPlayer;
 	}
 	
-	string GetRoleColor(string pRoleName)
+	ref Color GetRoleColor(string pRoleName)
 	{
-		string roleColor = string.Empty;
+		ref Color roleColor;
 		
 		foreach (flabbyStaffChatRolesConfigRole role : m_aRoles)
 		{
 			if (role.m_sName == pRoleName)
 			{
-				roleColor = role.m_sColor;
+				array<string> roleColors = new array<string>();
+				role.m_sColor.Split(" ", roleColors, false);
+				if (roleColors.Count() == 4)
+					roleColor = new Color(roleColors.Get(0).ToInt(), roleColors.Get(1).ToInt(), roleColors.Get(2).ToInt(), roleColors.Get(3).ToInt());
 				break;
 			}
 		}

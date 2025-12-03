@@ -102,10 +102,13 @@ class flabby_staff_chat_roles_commands : ScrServerCommand
 			}
 			if (argv[1] == "role" && argv[2] == "edit" && argv[3] == "color")
 			{
-				// Example to edit role color,
-				// #cr role edit color staff blue
-				flabby_staff_chat_roles_configuration.editMessageColor(argv[4], argv[5]);
-				return ScrServerCmdResult(string.Format("Success, added color %2 to role %1", argv[5], argv[4]), EServerCmdResultType.OK);
+				// Example to edit role color to green(r g b a),
+				// #cr role edit color staff 255 0 255 255
+				
+				// Set message color
+				flabby_staff_chat_roles_configuration.editMessageColor(argv[4], argv[5], argv[6], argv[7], argv[8]);
+				
+				return ScrServerCmdResult(string.Format("Success, added color to role %1", argv[4]), EServerCmdResultType.OK);
 			}
 			
 			// Player functions

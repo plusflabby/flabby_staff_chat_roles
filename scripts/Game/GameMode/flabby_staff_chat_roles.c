@@ -23,28 +23,7 @@ modded class SCR_ChatMessageLineComponent
 		m_Widgets.m_wMessageText.SetText(string.Format("%1 | %2", prefixs, m_Widgets.m_wMessageText.GetText()));
 		
 		//Check if role has color 
-		string roleColor = gmc.GetRoleColor(senderRoles.Get(0));
-		
-		// Does player have color 
-		if (!roleColor.IsEmpty())
-		{
-			roleColor.ToUpper();
-			
-			// Set message color
-			if (roleColor == "RED")
-				m_Widgets.m_wMessageText.SetColor(Color.Red);
-			if (roleColor == "GREEN")
-				m_Widgets.m_wMessageText.SetColor(Color.Green);
-			if (roleColor == "BLUE")
-				m_Widgets.m_wMessageText.SetColor(Color.Blue);
-			if (roleColor == "ORANGE")
-				m_Widgets.m_wMessageText.SetColor(Color.Orange);
-			if (roleColor == "YELLOW")
-				m_Widgets.m_wMessageText.SetColor(Color.Yellow);
-			if (roleColor == "BLACK")
-				m_Widgets.m_wMessageText.SetColor(Color.Black);
-			if (roleColor == "WHITE")
-				m_Widgets.m_wMessageText.SetColor(Color.White);
-		}
+		Color roleColor = gmc.GetRoleColor(senderRoles.Get(0));
+		if (roleColor) m_Widgets.m_wMessageText.SetColor(roleColor);
 	}
 }

@@ -26,12 +26,12 @@ Commands require you to #login as admin.
 ## Edit role to a new name
 `#cr role edit name [Role-Name] [New-Role-Name]`
 ## Edit role message color
-`#cr role edit color [Role-Name] [Blue/Green/Red/Orange/Yellow/Black/White]`
+`#cr role edit color [Role-Name] [R] [G] [B] [A]`
 
 # Examples: 
 - #cr role add MOD
 - #cr role edit name MOD ADMIN
-- #cr role edit color ADMIN blue
+- #cr role edit color ADMIN 255 0 255 255
 - #cr player add ADMIN c68a383e-209a-4e78-b61e-ff36cf338235
 
 ## Arma Public License Share Alike (APL-SA) [(LINK)](https://www.bohemia.net/community/licenses/arma-public-license-share-alike)

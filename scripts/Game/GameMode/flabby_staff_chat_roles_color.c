@@ -1,11 +1,8 @@
 modded class flabby_staff_chat_roles_configuration
 {
 	//! Edit a role's color
-	static string editMessageColor(string roleName, string colorHexCode)
+	static string editMessageColor(string roleName, string r, string g, string b, string a)
 	{
-		// Upper case role name
-		roleName.ToUpper();
-		
 		string returnMessage = "Role does not exist.";
 		
 		flabbyStaffChatRolesConfigFile cfg = flabbyStaffChatRolesConfig.GetConfig();
@@ -13,7 +10,7 @@ modded class flabby_staff_chat_roles_configuration
 		{
 			if (role.m_sName == roleName)
 			{
-				role.m_sColor = colorHexCode;
+				role.m_sColor = string.Format("%1 %2 %3 %4", r, g, b, a);
 				returnMessage = "Success!";
 				break;
 			}
