@@ -44,6 +44,20 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 			if (!gm) return;
 			gm.GetOnPlayerAuditSuccess().Insert(OnPlayerAuditSuccess);
 			gm.GetOnPlayerDisconnected().Insert(OnPlayerDisconnected);
+			
+			// Load connected players
+			if (GetGame().GetPlayerManager())
+			{
+				array<int> playerIds = new array<int>();
+				GetGame().GetPlayerManager().GetPlayers(playerIds);
+				if (playerIds.Count() > 0)
+				{
+					foreach (int playerId : playerIds)
+					{
+						OnPlayerAuditSuccess(playerId);
+					}
+				}
+			}
 		}
 	}
 	
@@ -69,9 +83,9 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 		array<string> rolesForPlayer = new array<string>();
 		if (!GetGame()) return rolesForPlayer;
 		if (!GetGame().GetBackendApi()) return rolesForPlayer;
+		if (!m_aIds) return rolesForPlayer;
 		
 		string playerIdentityId = string.Empty;
-		
 		foreach (array<string> Ids : m_aIds)
 		{
 			if (Ids.Get(0) == pPlayerId.ToString())
@@ -82,6 +96,7 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 		}
 		
 		if (playerIdentityId.IsEmpty()) return rolesForPlayer;
+		if (!m_aPlayers) return rolesForPlayer;
 		
 		foreach (flabbyStaffChatRolesConfigPlayer player : m_aPlayers)
 		{
@@ -98,6 +113,7 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 	ref Color GetRoleColor(string pRoleName)
 	{
 		ref Color roleColor;
+		if (!m_aRoles) return roleColor;
 		
 		foreach (flabbyStaffChatRolesConfigRole role : m_aRoles)
 		{
@@ -105,8 +121,7 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 			{
 				array<string> roleColors = new array<string>();
 				role.m_sColor.Split(" ", roleColors, false);
-				roleColors.Debug();
-				if (roleColors.Count() > 0)
+				if (roleColors.Count() == 4)
 				{
 					roleColor = new Color();
 					roleColor = roleColor.FromRGBA(roleColors.Get(0).ToInt(), roleColors.Get(1).ToInt(), roleColors.Get(2).ToInt(), roleColors.Get(3).ToInt());

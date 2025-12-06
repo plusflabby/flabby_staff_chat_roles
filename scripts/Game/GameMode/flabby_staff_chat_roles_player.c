@@ -4,9 +4,6 @@ modded class flabby_staff_chat_roles_configuration
 	//! Also adds prefix to player if online
 	static string addRoleToPlayer(string playerIdentifier, string roleName)
 	{
-		// Upper case role name
-		roleName.ToUpper();
-		
 		flabbyStaffChatRolesConfigFile cfg = flabbyStaffChatRolesConfig.GetConfig();
 		bool roleExist = false;
 		foreach (flabbyStaffChatRolesConfigRole role : cfg.GetRoles())
@@ -48,9 +45,6 @@ modded class flabby_staff_chat_roles_configuration
 	
 	static string removeRoleFromPlayer(string playerIdentifier, string roleName)
 	{
-		// Upper case role name
-		roleName.ToUpper();
-		
 		flabbyStaffChatRolesConfigFile cfg = flabbyStaffChatRolesConfig.GetConfig();
 		bool removedRole = false;
 		foreach (flabbyStaffChatRolesConfigPlayer player : cfg.GetPlayers())

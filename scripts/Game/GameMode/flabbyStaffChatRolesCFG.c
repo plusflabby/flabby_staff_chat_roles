@@ -1,6 +1,6 @@
 class flabbyStaffChatRolesConfig
 {
-	private static string persistedFileLocation = "$profile:/flabby/CustomColoredRoles_Config.json";
+	private static string persistedFileLocation = "$profile:CustomColoredRoles_Config.json";
 	
 	static flabbyStaffChatRolesConfigFile GetConfig()
 	{

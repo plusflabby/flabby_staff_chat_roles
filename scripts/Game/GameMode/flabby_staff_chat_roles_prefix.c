@@ -3,9 +3,6 @@ modded class flabby_staff_chat_roles_configuration
 	//! Add a new role
 	static string addRoleCategory(string roleName)
 	{
-		// Upper case role name
-		roleName.ToUpper();
-		
 		flabbyStaffChatRolesConfigFile cfg = flabbyStaffChatRolesConfig.GetConfig();
 		bool roleExist = false;
 		foreach (flabbyStaffChatRolesConfigRole role : cfg.GetRoles())
@@ -24,6 +21,9 @@ modded class flabby_staff_chat_roles_configuration
 		cfg.AddRole(role);
 		
 		flabbyStaffChatRolesConfig.SaveConfig(cfg);
+	
+		flabby_StaffChatRolesGameModeComponent gmc = flabby_StaffChatRolesGameModeComponent.Cast(GetGame().GetGameMode().FindComponent(flabby_StaffChatRolesGameModeComponent));
+		if (gmc) gmc.UpdatePlayersAndRoles();
 		
 		return string.Format("Success, added role %1", roleName);
 	}
@@ -32,9 +32,6 @@ modded class flabby_staff_chat_roles_configuration
 	//! Also remove prefix from players with role
 	static void removeRoleCategory(string roleName)
 	{
-		// Upper case role name
-		roleName.ToUpper();
-		
 		flabbyStaffChatRolesConfigFile cfg = flabbyStaffChatRolesConfig.GetConfig();
 		bool removedRole = false;
 		foreach (flabbyStaffChatRolesConfigRole role : cfg.GetRoles())
@@ -77,12 +74,6 @@ modded class flabby_staff_chat_roles_configuration
 	//! Also updates prefix to players if online
 	static void editRoleName(string roleName, string roleNameNew)
 	{
-		// Upper case role name
-		roleName.ToUpper();
-		
-		// Upper case new role name
-		roleNameNew.ToUpper();
-		
 		if (roleName == roleNameNew) return;
 	
 		flabbyStaffChatRolesConfigFile cfg = flabbyStaffChatRolesConfig.GetConfig();
