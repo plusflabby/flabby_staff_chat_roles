@@ -30,8 +30,8 @@ class flabbyStaffChatRolesConfig
 
 class flabbyStaffChatRolesConfigFile : JsonApiStruct
 {
-	protected ref array<ref flabbyStaffChatRolesConfigPlayer> m_aPlayers;
 	protected ref array<ref flabbyStaffChatRolesConfigRole> m_aRoles;
+	protected ref array<ref flabbyStaffChatRolesConfigPlayer> m_aPlayers;
 	
 	ref array<ref flabbyStaffChatRolesConfigPlayer> GetPlayers()
 	{
@@ -73,8 +73,8 @@ class flabbyStaffChatRolesConfigFile : JsonApiStruct
 	{
 		m_aPlayers = new array<ref flabbyStaffChatRolesConfigPlayer>();
 		m_aRoles = new array<ref flabbyStaffChatRolesConfigRole>();
-		RegV("m_aPlayers");
 		RegV("m_aRoles");
+		RegV("m_aPlayers");
 	}
 }
 
