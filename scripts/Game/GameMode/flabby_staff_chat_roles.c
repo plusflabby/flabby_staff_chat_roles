@@ -16,11 +16,12 @@ modded class SCR_ChatMessageLineComponent
 		string prefixs = string.Empty;
 		foreach (string role : senderRoles)
 		{
-			prefixs += string.Format("[%1]", role);
+			if (prefixs.IsEmpty()) prefixs += string.Format("%1", role);
+			else prefixs += string.Format(" | %1", role);
 		}
 		
 		// Set message with prefix(s)
-		m_Widgets.m_wMessageText.SetText(string.Format("%1 | %2", prefixs, m_Widgets.m_wMessageText.GetText()));
+		m_Widgets.m_wMessageText.SetText(string.Format("[ %1 ] | %2", prefixs, m_Widgets.m_wMessageText.GetText()));
 		
 		//Check if role has color 
 		Color roleColor = gmc.GetRoleColor(senderRoles.Get(0));
