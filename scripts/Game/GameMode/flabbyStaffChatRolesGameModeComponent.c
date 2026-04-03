@@ -13,6 +13,12 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 	[RplProp()]
 	private ref array<ref array<string>> m_aIds;
 	
+	[RplProp()]
+	private bool m_bUpdatePlayerNamesOnConnections;
+	
+	[RplProp()]
+	private bool m_bRequireNameAndGuidMatch;
+	
 	protected override void OnPostInit(IEntity owner)
 	{
 		super.OnPostInit(owner);
@@ -37,6 +43,8 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 			m_aPlayers = cfg.GetPlayers();
 			m_aRoles = cfg.GetRoles();
 			m_aIds = new array<ref array<string>>();
+			m_bUpdatePlayerNamesOnConnections = cfg.m_bUpdatePlayerNamesOnConnections;
+			m_bRequireNameAndGuidMatch = cfg.m_bRequireNameAndGuidMatch;
 			s_bInitialized = true;
 			Replication.BumpMe();
 			
@@ -66,7 +74,15 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 		string playerIdentityId = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 		if (playerIdentityId.IsEmpty()) return;
 		
-		m_aIds.Insert({playerId.ToString(), playerIdentityId});
+		string playerName = string.Empty;
+		if (GetGame().GetPlayerManager())
+			playerName = GetGame().GetPlayerManager().GetPlayerName(playerId);
+		
+		m_aIds.Insert({playerId.ToString(), playerIdentityId, playerName});
+		
+		if (m_bUpdatePlayerNamesOnConnections)
+			UpdatePlayerNameInConfig(playerIdentityId, playerName);
+		
 		Replication.BumpMe();
 	}
 	private void OnPlayerDisconnected(int playerId, KickCauseCode cause = KickCauseCode.NONE, int timeout = -1)
@@ -74,7 +90,14 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 		string playerIdentityId = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 		if (playerIdentityId.IsEmpty()) return;
 		
-		m_aIds.RemoveItem({playerId.ToString(), playerIdentityId});
+		foreach (array<string> ids : m_aIds)
+		{
+			if (ids.Get(0) == playerId.ToString())
+			{
+				m_aIds.RemoveItem(ids);
+				break;
+			}
+		}
 		Replication.BumpMe();
 	}
 	
@@ -86,11 +109,14 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 		if (!m_aIds) return rolesForPlayer;
 		
 		string playerIdentityId = string.Empty;
+		string playerName = string.Empty;
 		foreach (array<string> Ids : m_aIds)
 		{
 			if (Ids.Get(0) == pPlayerId.ToString())
 			{
 				playerIdentityId = Ids.Get(1);
+				if (Ids.Count() > 2)
+					playerName = Ids.Get(2);
 				break;
 			}
 		}
@@ -100,14 +126,42 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 		
 		foreach (flabbyStaffChatRolesConfigPlayer player : m_aPlayers)
 		{
-			if (player.m_sBohemiaIdentifier == playerIdentityId)
+			if (player.m_sBohemiaIdentifier != playerIdentityId)
+				continue;
+			
+			if (m_bRequireNameAndGuidMatch && player.m_sName != playerName)
+				continue;
+			
+			rolesForPlayer = player.m_aRoles;
+			break;
+		}
+		
+		return rolesForPlayer;
+	}
+	
+	protected void UpdatePlayerNameInConfig(string playerIdentityId, string playerName)
+	{
+		if (!Replication.IsServer()) return;
+		if (playerIdentityId.IsEmpty()) return;
+		
+		flabbyStaffChatRolesConfigFile cfg = flabbyStaffChatRolesConfig.GetConfig();
+		if (!cfg) return;
+		
+		bool changed = false;
+		foreach (flabbyStaffChatRolesConfigPlayer player : cfg.GetPlayers())
+		{
+			if (player.m_sBohemiaIdentifier == playerIdentityId && player.m_sName != playerName)
 			{
-				rolesForPlayer = player.m_aRoles;
+				player.m_sName = playerName;
+				changed = true;
 				break;
 			}
 		}
 		
-		return rolesForPlayer;
+		if (!changed) return;
+		
+		flabbyStaffChatRolesConfig.SaveConfig(cfg);
+		m_aPlayers = cfg.GetPlayers();
 	}
 	
 	ref Color GetRoleColor(string pRoleName)
@@ -139,6 +193,8 @@ class flabby_StaffChatRolesGameModeComponent : ScriptComponent
 		flabbyStaffChatRolesConfigFile cfg = flabbyStaffChatRolesConfig.GetConfig();
 		m_aPlayers = cfg.GetPlayers();
 		m_aRoles = cfg.GetRoles();
+		m_bUpdatePlayerNamesOnConnections = cfg.m_bUpdatePlayerNamesOnConnections;
+		m_bRequireNameAndGuidMatch = cfg.m_bRequireNameAndGuidMatch;
 		Replication.BumpMe()
 	}
 }

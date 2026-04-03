@@ -30,6 +30,8 @@ class flabbyStaffChatRolesConfig
 
 class flabbyStaffChatRolesConfigFile : JsonApiStruct
 {
+	bool m_bUpdatePlayerNamesOnConnections;
+	bool m_bRequireNameAndGuidMatch;
 	protected ref array<ref flabbyStaffChatRolesConfigRole> m_aRoles;
 	protected ref array<ref flabbyStaffChatRolesConfigPlayer> m_aPlayers;
 	
@@ -71,8 +73,12 @@ class flabbyStaffChatRolesConfigFile : JsonApiStruct
 	
 	void flabbyStaffChatRolesConfigFile()
 	{
+		m_bUpdatePlayerNamesOnConnections = false;
+		m_bRequireNameAndGuidMatch = false;
 		m_aPlayers = new array<ref flabbyStaffChatRolesConfigPlayer>();
 		m_aRoles = new array<ref flabbyStaffChatRolesConfigRole>();
+		RegV("m_bUpdatePlayerNamesOnConnections");
+		RegV("m_bRequireNameAndGuidMatch");
 		RegV("m_aRoles");
 		RegV("m_aPlayers");
 	}
@@ -81,17 +87,21 @@ class flabbyStaffChatRolesConfigFile : JsonApiStruct
 class flabbyStaffChatRolesConfigPlayer : JsonApiStruct
 {
 	string m_sBohemiaIdentifier;
+	string m_sName;
 	ref array<string> m_aRoles;
 	
 	void flabbyStaffChatRolesConfigPlayer()
 	{
 		m_aRoles = new array<string>();
 		RegV("m_sBohemiaIdentifier");
+		RegV("m_sName");
 		RegV("m_aRoles");
 	}
 	
-	static bool Extract(flabbyStaffChatRolesConfigPlayer instance, ScriptCtx ctx, SSnapSerializerBase snapshot) {
+	static bool Extract(flabbyStaffChatRolesConfigPlayer instance, ScriptCtx ctx, SSnapSerializerBase snapshot)
+	{
 		snapshot.SerializeString(instance.m_sBohemiaIdentifier);
+		snapshot.SerializeString(instance.m_sName);
 		string rolesStr = "";
 		for (int i = 0; i < instance.m_aRoles.Count(); i++) {
 			if (i > 0) rolesStr += "|";
@@ -101,8 +111,10 @@ class flabbyStaffChatRolesConfigPlayer : JsonApiStruct
 		return true;
 	}
 
-	static bool Inject(SSnapSerializerBase snapshot, ScriptCtx ctx, flabbyStaffChatRolesConfigPlayer instance) {
+	static bool Inject(SSnapSerializerBase snapshot, ScriptCtx ctx, flabbyStaffChatRolesConfigPlayer instance)
+	{
 		snapshot.SerializeString(instance.m_sBohemiaIdentifier);
+		snapshot.SerializeString(instance.m_sName);
 		string rolesStr;
 		snapshot.SerializeString(rolesStr);
 		instance.m_aRoles.Clear();
@@ -113,11 +125,13 @@ class flabbyStaffChatRolesConfigPlayer : JsonApiStruct
 	static void Encode(SSnapSerializerBase snapshot, ScriptCtx ctx, ScriptBitSerializer packet)
 	{
 		snapshot.EncodeString(packet); // BohemiaIdentifier
+		snapshot.EncodeString(packet); // PlayerName
 		snapshot.EncodeString(packet); // rolesStr
 	}
 
 	static bool Decode(ScriptBitSerializer packet, ScriptCtx ctx, SSnapSerializerBase snapshot)
 	{
+		snapshot.DecodeString(packet);
 		snapshot.DecodeString(packet);
 		snapshot.DecodeString(packet);
 		return true;
@@ -126,11 +140,15 @@ class flabbyStaffChatRolesConfigPlayer : JsonApiStruct
 	static bool SnapCompare(SSnapSerializerBase lhs, SSnapSerializerBase rhs, ScriptCtx ctx)
 	{
 		return lhs.CompareStringSnapshots(rhs)  // BohemiaIdentifier
+			&& lhs.CompareStringSnapshots(rhs) // PlayerName
 			&& lhs.CompareStringSnapshots(rhs); // rolesStr
 	}
 
-	static bool PropCompare(flabbyStaffChatRolesConfigPlayer instance, SSnapSerializerBase snapshot, ScriptCtx ctx) {
+	static bool PropCompare(flabbyStaffChatRolesConfigPlayer instance, SSnapSerializerBase snapshot, ScriptCtx ctx)
+	{
 		if (!snapshot.CompareString(instance.m_sBohemiaIdentifier))
+			return false;
+		if (!snapshot.CompareString(instance.m_sName))
 			return false;
 		string rolesStr = "";
 		for (int i = 0; i < instance.m_aRoles.Count(); i++) {
@@ -154,13 +172,15 @@ class flabbyStaffChatRolesConfigRole : JsonApiStruct
 		RegV("m_sColor");
 	}
 	
-	static bool Extract(flabbyStaffChatRolesConfigRole instance, ScriptCtx ctx, SSnapSerializerBase snapshot) {
+	static bool Extract(flabbyStaffChatRolesConfigRole instance, ScriptCtx ctx, SSnapSerializerBase snapshot)
+	{
 		snapshot.SerializeString(instance.m_sName);
 		snapshot.SerializeString(instance.m_sColor);
 		return true;
 	}
 
-	static bool Inject(SSnapSerializerBase snapshot, ScriptCtx ctx, flabbyStaffChatRolesConfigRole instance) {
+	static bool Inject(SSnapSerializerBase snapshot, ScriptCtx ctx, flabbyStaffChatRolesConfigRole instance)
+	{
 		snapshot.SerializeString(instance.m_sName);
 		snapshot.SerializeString(instance.m_sColor);
 		return true;
@@ -185,7 +205,8 @@ class flabbyStaffChatRolesConfigRole : JsonApiStruct
 			&& lhs.CompareStringSnapshots(rhs); // Color
 	}
 
-	static bool PropCompare(flabbyStaffChatRolesConfigRole instance, SSnapSerializerBase snapshot, ScriptCtx ctx) {
+	static bool PropCompare(flabbyStaffChatRolesConfigRole instance, SSnapSerializerBase snapshot, ScriptCtx ctx)
+	{
 		if (!snapshot.CompareString(instance.m_sName)
 			|| !snapshot.CompareString(instance.m_sColor))
 			return false;

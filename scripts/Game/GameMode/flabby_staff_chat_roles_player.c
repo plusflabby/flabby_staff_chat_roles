@@ -59,6 +59,8 @@ modded class flabby_staff_chat_roles_configuration
 		
 		if (!removedRole) return "No player exists with this identifier.";
 		
+		flabbyStaffChatRolesConfig.SaveConfig(cfg);
+		
 		// Update on clients
 		flabby_StaffChatRolesGameModeComponent gmc = flabby_StaffChatRolesGameModeComponent.Cast(GetGame().GetGameMode().FindComponent(flabby_StaffChatRolesGameModeComponent));
 		if (gmc) gmc.UpdatePlayersAndRoles();
